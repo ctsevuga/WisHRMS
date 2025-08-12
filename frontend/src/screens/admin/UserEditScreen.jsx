@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Form, Button } from 'react-bootstrap';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Form, Button, Row, Col } from 'react-bootstrap';
 import Message from '../../components/Message';
 import Loader from '../../components/Loader';
 import FormContainer from '../../components/FormContainer';
 import { toast } from 'react-toastify';
-import { useParams } from 'react-router-dom';
 import {
   useGetUserDetailsQuery,
   useUpdateUserMutation,
@@ -13,9 +12,14 @@ import {
 
 const UserEditScreen = () => {
   const { id: userId } = useParams();
+
   const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [role, setRole] = useState('');
   const [phone, setPhone] = useState('');
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [address, setAddress] = useState('');
+
+  const navigate = useNavigate();
 
   const {
     data: user,
@@ -26,13 +30,28 @@ const UserEditScreen = () => {
 
   const [updateUser, { isLoading: loadingUpdate }] = useUpdateUserMutation();
 
-  const navigate = useNavigate();
+  useEffect(() => {
+    if (user) {
+      setName(user.name || '');
+      setEmail(user.email || '');
+      setRole(user.role || '');
+      setPhone(user.phone || '');
+      setAddress(user.address || '');
+    }
+  }, [user]);
 
   const submitHandler = async (e) => {
     e.preventDefault();
     try {
-      await updateUser({ userId, name, phone, isAdmin });
-      toast.success('user updated successfully');
+      await updateUser({
+        userId,
+        name,
+        email,
+        role,
+        phone,
+        address,
+      });
+      toast.success('User updated successfully');
       refetch();
       navigate('/admin/userlist');
     } catch (err) {
@@ -40,17 +59,9 @@ const UserEditScreen = () => {
     }
   };
 
-  useEffect(() => {
-    if (user) {
-      setName(user.name);
-      setPhone(user.phone);
-      setIsAdmin(user.isAdmin);
-    }
-  }, [user]);
-
   return (
     <>
-      <Link to='/admin/userlist' className='btn btn-light my-3'>
+      <Link to="/admin/userlist" className="btn btn-light my-3">
         Go Back
       </Link>
       <FormContainer>
@@ -59,41 +70,78 @@ const UserEditScreen = () => {
         {isLoading ? (
           <Loader />
         ) : error ? (
-          <Message variant='danger'>
+          <Message variant="danger">
             {error?.data?.message || error.error}
           </Message>
         ) : (
           <Form onSubmit={submitHandler}>
-            <Form.Group className='my-2' controlId='name'>
-              <Form.Label>Name</Form.Label>
-              <Form.Control
-                type='name'
-                placeholder='Enter name'
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              ></Form.Control>
-            </Form.Group>
+            <Row>
+              <Col md={4}>
+                <Form.Group className="my-2" controlId="name">
+                  <Form.Label>Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                  />
+                </Form.Group>
+              </Col>
 
-            <Form.Group className='my-2' controlId='email'>
-              <Form.Label>Mobile Phone Number</Form.Label>
-              <Form.Control
-                type='phone'
-                placeholder='Enter Mobile Phone Number'
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-              ></Form.Control>
-            </Form.Group>
+              <Col md={4}>
+                <Form.Group className="my-2" controlId="email">
+                  <Form.Label>Email Address</Form.Label>
+                  <Form.Control
+                    type="email"
+                    placeholder="Enter email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </Form.Group>
+              </Col>
 
-            <Form.Group className='my-2' controlId='isadmin'>
-              <Form.Check
-                type='checkbox'
-                label='Is Admin'
-                checked={isAdmin}
-                onChange={(e) => setIsAdmin(e.target.checked)}
-              ></Form.Check>
-            </Form.Group>
+              <Col md={4}>
+                <Form.Group className="my-2" controlId="role">
+                  <Form.Label>Role</Form.Label>
+                  <Form.Select
+                    value={role}
+                    onChange={(e) => setRole(e.target.value)}
+                  >
+                    <option value="">Select Role</option>
+                    <option value="admin">Admin</option>
+                    <option value="employee">Employee</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+            </Row>
 
-            <Button type='submit' variant='primary'>
+            <Row>
+              <Col md={4}>
+                <Form.Group className="my-2" controlId="phone">
+                  <Form.Label>Phone</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter phone number"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                  />
+                </Form.Group>
+              </Col>
+
+              <Col md={8}>
+                <Form.Group className="my-2" controlId="address">
+                  <Form.Label>Address</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter address"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Button type="submit" variant="primary" className="mt-3">
               Update
             </Button>
           </Form>

@@ -12,9 +12,10 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
-import PrivateRoute from "./components/PrivateRoute";
+import { Provider, useSelector } from "react-redux";
+import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
-import ForgotScreen from './screens/ForgotScreen';
+import ForgotScreen from "./screens/ForgotScreen";
 import LoginScreen from "./screens/LoginScreen";
 import RegisterScreen from "./screens/RegisterScreen";
 import EmployeeScreen from "./screens/EmployeeScreen";
@@ -48,100 +49,391 @@ import PayrollGenerationScreen from "./screens/admin/PayrollGenerationScreen";
 import PayrollListScreen from "./screens/admin/PayrollListScreen";
 import PayrollEditScreen from "./screens/admin/PayrollEditScreen";
 import PayrollPaymentScreen from "./screens/admin/PayrollPaymentScreen";
+import ParameterListScreen from "./screens/admin/ParameterListScreen";
+import ParameterEditScreen from "./screens/admin/ParameterEditScreen";
 import store from "./store";
-import { Provider } from "react-redux";
 
-const router = createBrowserRouter(
-  createRoutesFromElements(
-    <Route path="/" element={<App />}>
-      <Route path="/" element={<LoginScreen />} />
-      <Route path="/register" element={<RegisterScreen />} />
-      <Route path='/forgot' element={<ForgotScreen />} />
-      <Route path="/employee" element={<EmployeeScreen />} />
 
-      {/* Dashboard Screen Path */}
+// Route wrapper component to use Redux state
+const RouterWrapper = () => {
+  const { userInfo } = useSelector((state) => state.auth);
 
-      <Route path="/search/:keyword" element={<DashboardScreen />} />
-      <Route path="/page/:pageNumber" element={<DashboardScreen />} />
-      <Route path="/dashboard/:pageNumber" element={<DashboardScreen />} />
-      <Route
-        path="/search/:keyword/page/:pageNumber"
-        element={<DashboardScreen />}
-      />
+  const router = createBrowserRouter(
+    createRoutesFromElements(
+      <Route path="/" element={<App />}>
+        {/* Public Routes */}
+        <Route index path="/" element={<LoginScreen />} />
+        <Route path="/register" element={<RegisterScreen />} />
+        <Route path="/forgot" element={<ForgotScreen />} />
 
-      {/* Registered users */}
-      <Route path="" element={<PrivateRoute />}>
-        <Route path="/attendance" element={<AttendanceScreen />} />
-        <Route path="/clockin" element={<CreateClockInScreen />} />
-        <Route path="/clockout" element={<UpdateClockOutScreen />} />
-        <Route path="/profile" element={<ProfileScreen />} />
-        <Route path="/leave" element={<LeaveScreen />} />
-        <Route path="/employee/:empId" element={<EmployeeScreen />} />
-        <Route path="/mine" element={<MyAttendanceScreen />} />
-        <Route path="/salary" element={<SalaryDetailsScreen />} />
-        <Route path="/payslips" element={<PayslipsScreen />} />
-        <Route path="/leave/mine" element={<MyLeaveScreen />} />
+        {/* Both Roles Routes */}
+        <Route
+          path="/attendance"
+          element={
+            <ProtectedRoute
+              user={userInfo}
+              allowedRoles={["employee", "admin"]}
+            >
+              <AttendanceScreen />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/clockin"
+          element={
+            <ProtectedRoute
+              user={userInfo}
+              allowedRoles={["employee", "admin"]}
+            >
+              <CreateClockInScreen />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/clockout"
+          element={
+            <ProtectedRoute
+              user={userInfo}
+              allowedRoles={["employee", "admin"]}
+            >
+              <UpdateClockOutScreen />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute
+              user={userInfo}
+              allowedRoles={["employee", "admin"]}
+            >
+              <ProfileScreen />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/leave"
+          element={
+            <ProtectedRoute
+              user={userInfo}
+              allowedRoles={["employee", "admin"]}
+            >
+              <LeaveScreen />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/employee/:empId"
+          element={
+            <ProtectedRoute
+              user={userInfo}
+              allowedRoles={["employee", "admin"]}
+            >
+              <EmployeeScreen />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/mine"
+          element={
+            <ProtectedRoute
+              user={userInfo}
+              allowedRoles={["employee", "admin"]}
+            >
+              <MyAttendanceScreen />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/salary"
+          element={
+            <ProtectedRoute
+              user={userInfo}
+              allowedRoles={["employee", "admin"]}
+            >
+              <SalaryDetailsScreen />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/payslips"
+          element={
+            <ProtectedRoute
+              user={userInfo}
+              allowedRoles={["employee", "admin"]}
+            >
+              <PayslipsScreen />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/leave/mine"
+          element={
+            <ProtectedRoute
+              user={userInfo}
+              allowedRoles={["employee", "admin"]}
+            >
+              <MyLeaveScreen />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/payroll/:id/view"
-          element={<PayslipScreen />}
+          element={
+            <ProtectedRoute
+              user={userInfo}
+              allowedRoles={["employee", "admin"]}
+            >
+              <PayslipScreen />
+            </ProtectedRoute>
+          }
         />
-        
-      </Route>
-      {/* Admin users */}
-      <Route path="" element={<AdminRoute />}>
-        <Route path="/admin/today" element={<TodayScreen />} />
-        <Route path="/admin/userlist" element={<UserListScreen />} />
-        <Route path="/admin/dashboard" element={<DashboardScreen />} />
-        <Route path="/admin/leavelist" element={<LeaveListScreen />} />
-        <Route path="/admin/configurations" element={<ConfigurationsScreen />} />
-        <Route path="/admin/employees" element={<EmployeeListScreen />} />
-        <Route path="/admin/salaries" element={<SalaryScreen />} />
-        <Route path="/admin/salarylist" element={<SalaryListScreen />} />
-        <Route path="/admin/payrolllist" element={<PayrollListScreen />} />
+
+        {/* Admin Routes */}
+        <Route
+          path="/admin/today"
+          element={
+            <AdminRoute user={userInfo}>
+              <TodayScreen />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/userlist"
+          element={
+            <AdminRoute user={userInfo}>
+              <UserListScreen />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/payroll"
+          element={
+            <AdminRoute user={userInfo}>
+              <PayrollGenerationScreen />
+            </AdminRoute>
+          }
+        />
+<Route
+          path="/admin/dashboard"
+          element={
+            <AdminRoute user={userInfo}>
+              <PayrollGenerationScreen />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/leavelist"
+          element={
+            <AdminRoute user={userInfo}>
+              <LeaveListScreen />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/configurations"
+          element={
+            <AdminRoute user={userInfo}>
+              <ConfigurationsScreen />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/employees"
+          element={
+            <AdminRoute user={userInfo}>
+              <EmployeeListScreen />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/salaries"
+          element={
+            <AdminRoute user={userInfo}>
+              <SalaryScreen />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/salarylist"
+          element={
+            <AdminRoute user={userInfo}>
+              <SalaryListScreen />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/payrolllist"
+          element={
+            <AdminRoute user={userInfo}>
+              <PayrollListScreen />
+            </AdminRoute>
+          }
+        />
+
         <Route
           path="/admin/employee/:empId/view"
-          element={<EmployeeViewScreen />}
+          element={
+            <AdminRoute user={userInfo}>
+              <EmployeeViewScreen />
+            </AdminRoute>
+          }
         />
-        <Route path="/admin/holiday" element={<HolidayScreen />} />
-        <Route path="/admin/allocate" element={<AllocateLeavesScreen />} />
-        <Route path="/admin/user/:id/edit" element={<UserEditScreen />} />
-        <Route path="/admin/payment" element={<PayrollPaymentScreen />} />
-        <Route path="/admin/payroll/:id/edit" element={<PayrollEditScreen />} />
-        <Route path="/admin/salary/:id/edit" element={<SalaryEditScreen />} />
+        <Route
+          path="/admin/holiday"
+          element={
+            <AdminRoute user={userInfo}>
+              <HolidayScreen />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/allocate"
+          element={
+            <AdminRoute user={userInfo}>
+              <AllocateLeavesScreen />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/user/:id/edit"
+          element={
+            <AdminRoute user={userInfo}>
+              <UserEditScreen />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/payment"
+          element={
+            <AdminRoute user={userInfo}>
+              <PayrollPaymentScreen />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/payroll/:id/edit"
+          element={
+            <AdminRoute user={userInfo}>
+              <PayrollEditScreen />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/salary/:id/edit"
+          element={
+            <AdminRoute user={userInfo}>
+              <SalaryEditScreen />
+            </AdminRoute>
+          }
+        />
+
         <Route
           path="/admin/salary/:id/view"
-          element={<SalaryViewScreen />}
+          element={
+            <AdminRoute user={userInfo}>
+              <SalaryViewScreen />
+            </AdminRoute>
+          }
         />
         <Route
           path="/admin/leave/:id/status"
-          element={<LeaveStatusScreen />}
+          element={
+            <AdminRoute user={userInfo}>
+              <LeaveStatusScreen />
+            </AdminRoute>
+          }
         />
-      </Route>
-       <Route
+
+        <Route
           path="/admin/payroll/:id/generate"
-          element={<PayrollScreen />}
+          element={
+            <AdminRoute user={userInfo}>
+              <PayrollScreen />
+            </AdminRoute>
+          }
         />
-      <Route path="/admin/payroll" element={<PayrollGenerationScreen />} />
-      <Route path="" element={<dataInfoRoute />}>
-        <Route path="/dashboard" element={<DashboardScreen />} />
-        <Route path="/search/:keyword" element={<DashboardScreen />} />
-        <Route path="/page/:pageNumber" element={<DashboardScreen />} />
-        <Route path="/dashboard/:pageNumber" element={<DashboardScreen />} />
+
+        <Route
+          path="/dashboard"
+          element={
+            <AdminRoute user={userInfo}>
+              <DashboardScreen />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/search/:keyword"
+          element={
+            <AdminRoute user={userInfo}>
+              <DashboardScreen />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/page/:pageNumber"
+          element={
+            <AdminRoute user={userInfo}>
+              <DashboardScreen />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/dashboard/:pageNumber"
+          element={
+            <AdminRoute user={userInfo}>
+              <DashboardScreen />
+            </AdminRoute>
+          }
+        />
+
         <Route
           path="/search/:keyword/page/:pageNumber"
-          element={<DashboardScreen />}
+          element={
+            <AdminRoute user={userInfo}>
+              <DashboardScreen />
+            </AdminRoute>
+          }
         />
+        <Route
+          path="/admin/parameterList"
+          element={
+            <AdminRoute user={userInfo}>
+              <ParameterListScreen />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/parameter/:id/edit"
+          element={
+            <AdminRoute user={userInfo}>
+              <ParameterEditScreen />
+            </AdminRoute>
+          }
+        />
+        {/* Profile (optional - accessible by all roles) */}
+        <Route path="/profile" element={<ProfileScreen />} />
       </Route>
-    </Route>
-  )
-);
+    )
+  );
+
+  return <RouterProvider router={router} />;
+};
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <HelmetProvider>
       <Provider store={store}>
-        <RouterProvider router={router} />
+        <RouterWrapper />
       </Provider>
     </HelmetProvider>
   </React.StrictMode>

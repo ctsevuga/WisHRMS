@@ -11,7 +11,7 @@ import { protect, admin } from "../middleware/authMiddleware.js";
 
 
 const router = express.Router();
-router.route('/:empId').get(protect, getMySalary);
+router.route('/mine/:empId').get(protect, getMySalary);
 router.post("/", protect, admin, createSalary);
 router.get("/", protect, admin, getSalries);
 

@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Form, Button } from "react-bootstrap";
+import { Form, Button, Row, Col, Card } from "react-bootstrap";
 import Message from "../../components/Message";
 import Loader from "../../components/Loader";
-import FormContainer from "../../components/FormContainer";
 import { toast } from "react-toastify";
 import { useParams } from "react-router-dom";
 import {
@@ -13,17 +12,11 @@ import {
 
 const SalaryEditScreen = () => {
   const { id: salaryId } = useParams();
-  const [empId, setEmpId] = useState();
+  const [empId, setEmpId] = useState("");
   const [name, setName] = useState("");
-  const [basic, setBasic] = useState();
-  const [hra, setHra] = useState();
-  const [conveyance, setConveyance] = useState();
-  const [otherAllowances, setOtherAllowances] = useState();
-  const [pf, setPf] = useState();
-  const [esi, setEsi] = useState();
-  const [tax, setTax] = useState();
-  const [effectiveFrom, setEffectiveFrom] = useState();
-  const [effectiveTo, setEffectiveTo] = useState();
+  const [basic, setBasic] = useState("");
+  const [effectiveFrom, setEffectiveFrom] = useState("");
+  const [effectiveTo, setEffectiveTo] = useState("");
 
   const {
     data: salary,
@@ -41,18 +34,14 @@ const SalaryEditScreen = () => {
     e.preventDefault();
     try {
       await updateSalary({
+        _id: salaryId,
         empId,
         basic,
-        hra,
-        conveyance,
-        otherAllowances,
-        pf,
-        esi,
-        tax,
         effectiveFrom,
         effectiveTo,
-      });
-      toast.success("salary updated successfully");
+      }).unwrap();
+
+      toast.success("Salary updated successfully");
       refetch();
       navigate("/admin/salarylist");
     } catch (err) {
@@ -65,24 +54,20 @@ const SalaryEditScreen = () => {
       setName(salary.name);
       setEmpId(salary.empId);
       setBasic(salary.basic);
-      setHra(salary.hra);
-      setConveyance(salary.conveyance);
-      setOtherAllowances(salary.otherAllowances);
-      setPf(salary.pf);
-      setEsi(salary.esi);
-      setTax(salary.tax);
-      setEffectiveFrom(salary.effectiveFrom);
-      setEffectiveTo(salary.effectiveTo);
+      setEffectiveFrom(salary.effectiveFrom?.substring(0, 10));
+      setEffectiveTo(salary.effectiveTo?.substring(0, 10));
     }
   }, [salary]);
 
   return (
     <>
-      <Link to="/admin/userlist" className="btn btn-light my-3">
+      <Link to="/admin/salarylist" className="btn btn-light my-3">
         Go Back
       </Link>
-      <FormContainer>
-        <h1>Edit Salary for the Employee {name}</h1>
+
+      <Card className="p-4 shadow-sm">
+        <h2 className="mb-4 text-center">Edit Salary for {name}</h2>
+
         {loadingUpdate && <Loader />}
         {isLoading ? (
           <Loader />
@@ -92,85 +77,57 @@ const SalaryEditScreen = () => {
           </Message>
         ) : (
           <Form onSubmit={submitHandler}>
-            <Form.Group controlId="basic">
-              <Form.Label>Basic</Form.Label>
-              <Form.Control
-                type="number"
-                value={basic}
-                onChange={(e) => setBasic(e.target.value)}
-              ></Form.Control>
-            </Form.Group>
-            <Form.Group controlId="hra">
-              <Form.Label>HRA</Form.Label>
-              <Form.Control
-                type="number"
-                value={hra}
-                onChange={(e) => setHra(e.target.value)}
-              ></Form.Control>
-            </Form.Group>
-            <Form.Group controlId="conveyance">
-              <Form.Label>Conveyance</Form.Label>
-              <Form.Control
-                type="number"
-                value={conveyance}
-                onChange={(e) => setConveyance(e.target.value)}
-              ></Form.Control>
-            </Form.Group>
-            <Form.Group controlId="otherAllowances">
-              <Form.Label>Other Allowances</Form.Label>
-              <Form.Control
-                type="number"
-                value={otherAllowances}
-                onChange={(e) => setOtherAllowances(e.target.value)}
-              ></Form.Control>
-            </Form.Group>
-            <Form.Group controlId="pf">
-              <Form.Label>PF</Form.Label>
-              <Form.Control
-                type="number"
-                value={pf}
-                onChange={(e) => setPf(e.target.value)}
-              ></Form.Control>
-            </Form.Group>
-            <Form.Group controlId="esi">
-              <Form.Label>ESI</Form.Label>
-              <Form.Control
-                type="number"
-                value={esi}
-                onChange={(e) => setEsi(e.target.value)}
-              ></Form.Control>
-            </Form.Group>
-            <Form.Group controlId="tax">
-              <Form.Label>TAX</Form.Label>
-              <Form.Control
-                type="number"
-                value={tax}
-                onChange={(e) => setTax(e.target.value)}
-              ></Form.Control>
-            </Form.Group>
-            <Form.Group controlId="effectiveFrom">
-              <Form.Label>Effective From</Form.Label>
-              <Form.Control
-                type="date"
-                value={effectiveFrom}
-                onChange={(e) => setEffectiveFrom(e.target.value)}
-              ></Form.Control>
-            </Form.Group>
-            <Form.Group controlId="effectiveTo">
-              <Form.Label>Effective To</Form.Label>
-              <Form.Control
-                type="date"
-                value={effectiveTo}
-                onChange={(e) => setEffectiveTo(e.target.value)}
-              ></Form.Control>
-            </Form.Group>
+            <Row>
+              <Col md={6}>
+                <Form.Group controlId="name" className="mb-3">
+                  <Form.Label>Employee Name</Form.Label>
+                  <Form.Control type="text" value={name} readOnly plaintext />
+                </Form.Group>
 
-            <Button type="submit" variant="primary">
-              Update
-            </Button>
+                <Form.Group controlId="basic" className="mb-3">
+                  <Form.Label>Basic Salary</Form.Label>
+                  <Form.Control
+                    type="number"
+                    value={basic}
+                    onChange={(e) => setBasic(e.target.value)}
+                  />
+                </Form.Group>
+
+                <Form.Group controlId="effectiveFrom" className="mb-3">
+                  <Form.Label>Effective From</Form.Label>
+                  <Form.Control
+                    type="date"
+                    value={effectiveFrom}
+                    onChange={(e) => setEffectiveFrom(e.target.value)}
+                  />
+                </Form.Group>
+              </Col>
+
+              <Col md={6}>
+                <Form.Group controlId="empId" className="mb-3">
+                  <Form.Label>Employee ID</Form.Label>
+                  <Form.Control type="text" value={empId} readOnly plaintext />
+                </Form.Group>
+
+                <Form.Group controlId="effectiveTo" className="mb-3">
+                  <Form.Label>Effective To</Form.Label>
+                  <Form.Control
+                    type="date"
+                    value={effectiveTo}
+                    onChange={(e) => setEffectiveTo(e.target.value)}
+                  />
+                </Form.Group>
+
+                <div className="d-grid mt-4">
+                  <Button type="submit" variant="primary">
+                    Update
+                  </Button>
+                </div>
+              </Col>
+            </Row>
           </Form>
         )}
-      </FormContainer>
+      </Card>
     </>
   );
 };

@@ -1,7 +1,7 @@
 import React from 'react';
 import { LinkContainer } from 'react-router-bootstrap';
 import { Table, Button } from 'react-bootstrap';
-import { FaTrash, FaEdit, FaCheck, FaTimes } from 'react-icons/fa';
+import { FaTrash, FaEdit } from 'react-icons/fa';
 import Message from '../../components/Message';
 import Loader from '../../components/Loader';
 import {
@@ -12,7 +12,6 @@ import { toast } from 'react-toastify';
 
 const PayrollListScreen = () => {
   const { data: payrolls, refetch, isLoading, error } = useGetPayrollsQuery();
-
   const [deletePayroll] = useDeletePayrollMutation();
 
   const deleteHandler = async (id) => {
@@ -25,14 +24,16 @@ const PayrollListScreen = () => {
       }
     }
   };
-const formatDate = (isoString) => {
-  const date = new Date(isoString);
-  const day = String(date.getDate()).padStart(2, '0');      // e.g. 12
-  const month = String(date.getMonth() + 1).padStart(2, '0'); // e.g. 06
-  const year = date.getFullYear();                           // e.g. 2025
 
-  return `${day}/${month}/${year}`;
-};
+  const formatDate = (isoString) => {
+    if (!isoString) return '-';
+    const date = new Date(isoString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
   return (
     <>
       <h1>Employee Payroll List</h1>
@@ -47,13 +48,14 @@ const formatDate = (isoString) => {
           <thead>
             <tr>
               <th>Employee ID</th>
-              <th>NAME</th>
+              <th>Name</th>
               <th>Year</th>
               <th>Month</th>
               <th>Net Pay</th>
+              <th>Employer PF</th>
               <th>Generated On</th>
               <th>Payment Date</th>
-              <th></th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -63,30 +65,26 @@ const formatDate = (isoString) => {
                 <td>{payroll.name}</td>
                 <td>{payroll.year}</td>
                 <td>{payroll.month}</td>
-                <td>{payroll.netPay}</td>
+                <td>₹{payroll.netPay?.toFixed(2)}</td>
+                <td>₹{payroll.PFEmployerContribution?.toFixed(2) || '0.00'}</td>
                 <td>{formatDate(payroll.generatedOn)}</td>
                 <td>{formatDate(payroll.paymentDate)}</td>
-
                 <td>
-                  
-                    <>
-                      <LinkContainer
-                        to={`/admin/payroll/${payroll._id}/edit`}
-                        style={{ marginRight: '10px' }}
-                      >
-                        <Button variant='light' className='btn-sm'>
-                          <FaEdit />
-                        </Button>
-                      </LinkContainer>
-                      <Button
-                        variant='danger'
-                        className='btn-sm'
-                        onClick={() => deleteHandler(payroll._id)}
-                      >
-                        <FaTrash style={{ color: 'white' }} />
-                      </Button>
-                    </>
-                  
+                  <LinkContainer
+                    to={`/admin/payroll/${payroll._id}/edit`}
+                    style={{ marginRight: '10px' }}
+                  >
+                    <Button variant='light' className='btn-sm'>
+                      <FaEdit />
+                    </Button>
+                  </LinkContainer>
+                  <Button
+                    variant='danger'
+                    className='btn-sm'
+                    onClick={() => deleteHandler(payroll._id)}
+                  >
+                    <FaTrash style={{ color: 'white' }} />
+                  </Button>
                 </td>
               </tr>
             ))}

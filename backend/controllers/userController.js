@@ -18,9 +18,7 @@ const authUser = asyncHandler(async (req, res) => {
       empId: user.empId,
       name: user.name,
       phone: user.phone,
-      isAdmin: user.isAdmin,
-      isHR: user.isHR,
-      isEmployee: user.isEmployee,
+      role: user.role,
       
     });
   } else {
@@ -59,9 +57,7 @@ const registerUser = asyncHandler(async (req, res) => {
       empId: user.empId,
       name: user.name,
       phone: user.phone,
-      isAdmin: user.isAdmin,
-      isHR: user.isHR,
-      isEmployee: user.isEmployee,
+      role: user.role,
     });
   } else {
     res.status(400);
@@ -80,69 +76,7 @@ const logoutUser = (req, res) => {
   res.status(200).json({ message: 'Logged out successfully' });
 };
 
-// @desc    Get user profile
-// @route   GET /api/users/profile
-// @access  Private
-// const getUserProfile = asyncHandler(async (req, res) => {
-//   const user = await User.findById(req.user._id);
 
-//   if (user) {
-//     res.json({
-//       _id: user._id,
-//       name: user.name,
-//       email: user.email,
-//       isAdmin: user.isAdmin,
-//       isCOE: user.isCOE,
-//       isMechFaculty: user.isMechFaculty,
-//       isCivilFaculty: user.isCivilFaculty,
-//       isEEEFaculty: user.isEEEFaculty,
-//       isECEFaculty: user.isECEFaculty,
-//       isCSEFaculty: user.isCSEFaculty,
-//     });
-//   } else {
-//     res.status(404);
-//     throw new Error('User not found');
-//   }
-// });
-
-// @desc    Update user profile
-// @route   PUT /api/users/profile
-// @access  Private
-// const updateUserProfile = asyncHandler(async (req, res) => {
-//   const user = await User.findById(req.user._id);
-
-//   if (user) {
-//     user.name = req.body.name || user.name;
-//     user.email = req.body.email || user.email;
-
-//     if (req.body.password) {
-//       user.password = req.body.password;
-//     }
-
-//     const updatedUser = await user.save();
-
-//     res.json({
-//       _id: updatedUser._id,
-//       name: updatedUser.name,
-//       email: updatedUser.email,
-//       isAdmin: updatedUser.isAdmin,
-//       isCOE: updatedUser.isCOE,
-//       isMechFaculty: updatedUser.isMechFaculty,
-//       isCivilFaculty: updatedUser.isCivilFaculty,
-//       isEEEFaculty: updatedUser.isEEEFaculty,
-//       isECEFaculty: updatedUser.isECEFaculty,
-//       isCSEFaculty: updatedUser.isCSEFaculty,
-      
-//     });
-//   } else {
-//     res.status(404);
-//     throw new Error('User not found');
-//   }
-// });
-
-// @desc    Get all users
-// @route   GET /api/users
-// @access  Private/Admin
 const getUsers = asyncHandler(async (req, res) => {
   const users = await User.find({});
   res.json(users);
@@ -168,7 +102,7 @@ const forgot = asyncHandler(async (req, res) => {
       _id: updatedUser._id,
       name: updatedUser.name,
       phone: updatedUser.phone,
-      isAdmin: updatedUser.isAdmin,
+      role: user.role,
     });
   } else {
     res.status(404);
@@ -217,19 +151,15 @@ const updateUser = asyncHandler(async (req, res) => {
   if (user) {
     user.name = req.body.name || user.name;
     user.email = req.body.email || user.email;
-    user.isAdmin = Boolean(req.body.isAdmin);
-    user.isHR = Boolean(req.body.isHR);
-    user.isEmployee = Boolean(req.body.isEmployee);
+    user.role = req.body.role || user.role;
     
 
     const updatedUser = await user.save();
 
     res.json({
       _id: updatedUser._id,
-      name: updatedUser.name,isCOE: updatedUser.isCOE,
-      isHR: updatedUser.isEmployee,
-      
-      isAdmin: updatedUser.isAdmin,
+      name: updatedUser.name,
+       role: updatedUser.role,
       
     });
   } else {

@@ -1,6 +1,7 @@
 import asyncHandler from "../middleware/asyncHandler.js";
 import Salary from "../models/salaryModel.js";
 import Payroll from "../models/payrollModel.js";
+import Parameter from "../models/ParametersModel.js";
 import Attendance from "../models/attendanceModel.js";
 import Month from "../models/monthModel.js";
 
@@ -136,8 +137,26 @@ const generatePayrollForAll = asyncHandler(async (req, res) => {
 
 const getPayrolls = asyncHandler(async (req, res) => {
   const payrolls = await Payroll.find({});
-  res.json(payrolls);
+  const parameters = await Parameter.findOne();
+console.log(parameters)
+  if (!parameters) {
+    return res.status(500).json({ message: "Parameter data not found" });
+  }
+
+  const employerPFRate = parameters.PFEmployerContribution;
+
+  // Add PFEmployerContribution dynamically
+  const payrollsWithEmployerPF = payrolls.map((p) => {
+    const employerPF = (employerPFRate / 100) * (p.grossSalary - p.totalDeductions);
+    return {
+      ...p.toObject(),
+      PFEmployerContribution: parseFloat(employerPF.toFixed(2)),
+    };
+  });
+
+  res.json(payrollsWithEmployerPF);
 });
+
 
 const deletePayroll = asyncHandler(async (req, res) => {
   const payroll = await Payroll.findById(req.params.id);
@@ -169,13 +188,30 @@ const updatePayroll = asyncHandler(async (req, res) => {
 const getPayrollById = asyncHandler(async (req, res) => {
   const payroll = await Payroll.findById(req.params.id);
 
-  if (payroll) {
-    res.json(payroll);
-  } else {
+  if (!payroll) {
     res.status(404);
     throw new Error("Payroll not found");
   }
+
+  // Fetch parameter for PFEmployerContribution rate
+  const parameters = await Parameter.findOne();
+
+  if (!parameters) {
+    return res.status(500).json({ message: "Parameter data not found" });
+  }
+
+  const employerPFRate = parameters.PFEmployerContribution;
+
+  // Calculate PFEmployerContribution using parameter rate
+  const employerPF = (employerPFRate / 100) * (payroll.grossSalary - payroll.totalDeductions);
+
+  res.json({
+    ...payroll.toObject(),
+    PFEmployerContribution: parseFloat(employerPF.toFixed(2)),
+  });
 });
+
+
 const updateAllPayrolls = asyncHandler(async (req, res) => {
   const { year, month } = req.body;
 

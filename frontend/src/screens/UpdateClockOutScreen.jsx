@@ -14,7 +14,13 @@ const UpdateClockOutScreen = () => {
   useEffect(() => {
     setEmpId(userInfo.empId);
   }, [userInfo]);
-
+   useEffect(() => {
+    const now = new Date();
+    const localISOTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+      .toISOString()
+      .slice(0, 16); // "YYYY-MM-DDTHH:MM"
+    setClockOut(localISOTime);
+  }, []);
   const submitHandler = async (e) => {
     e.preventDefault();
 

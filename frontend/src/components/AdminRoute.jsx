@@ -1,12 +1,10 @@
-import { Navigate, Outlet } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import React from 'react';
+import RoleGuard from './RoleGuard';
 
-const AdminRoute = () => {
-  const { userInfo } = useSelector((state) => state.auth);
-  return userInfo && userInfo.isAdmin ? (
-    <Outlet />
-  ) : (
-    <Navigate to='/login' replace />
-  );
-};
+const AdminRoute = ({ user, children }) => (
+  <RoleGuard user={user} allowedRoles={['admin']}>
+    {children}
+  </RoleGuard>
+);
+
 export default AdminRoute;

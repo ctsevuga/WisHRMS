@@ -12,6 +12,7 @@ import configurationRoutes from "./routes/configurationRoutes.js";
 import salaryRoutes from "./routes/salaryRoutes.js";
 import monthRoutes from "./routes/monthRoutes.js";
 import payrollRoutes from "./routes/payrollRoutes.js";
+import parameterRoutes from "./routes/parameterRoutes.js";
 
 import uploadRoutes from "./routes/uploadRoutes.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
@@ -32,6 +33,7 @@ app.use("/api/configurations", configurationRoutes);
 app.use("/api/salaries", salaryRoutes);
 app.use("/api/months", monthRoutes);
 app.use("/api/payrolls", payrollRoutes);
+app.use("/api/parameters", parameterRoutes);
 
 
 app.use("/api/upload", uploadRoutes);

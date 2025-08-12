@@ -18,7 +18,13 @@ const CreateClockInScreen = () => {
     setEmpId(userInfo.empId);
     setName(userInfo.name);
   }, [userInfo]);
-  console.log(name);
+   useEffect(() => {
+    const now = new Date();
+    const localISOTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+      .toISOString()
+      .slice(0, 16); // "YYYY-MM-DDTHH:MM"
+    setClockIn(localISOTime);
+  }, []);
   const submitHandler = async (e) => {
     e.preventDefault();
 

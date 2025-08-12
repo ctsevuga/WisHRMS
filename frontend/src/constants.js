@@ -8,4 +8,5 @@ export const ATTENDACES_URL = '/api/attendences';
 export const CONFIGURATIONS_URL = '/api/configurations';
 export const SALARIES_URL = '/api/salaries';
 export const MONTHS_URL = '/api/months';
+export const PARAMETERS_URL = '/api/parameters';
 export const PAYROLLS_URL = '/api/payrolls';

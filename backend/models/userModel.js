@@ -31,12 +31,10 @@ const userSchema = mongoose.Schema(
       required: true,
       default: false,
     },
-    isEmployee: {
-      type: Boolean,
-      required: true,
-      default: true,
-    },
-    
+    role: { type: String, 
+      enum: ["employee", "admin"],
+       default: "employee" },
+   
   },
   {
     timestamps: true,

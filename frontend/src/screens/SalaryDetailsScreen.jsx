@@ -9,7 +9,7 @@ import Message from "../components/Message";
 const SalaryDetailsScreen = () => {
   const { userInfo } = useSelector((state) => state.auth);
   const [empId, setEmpId] = useState(userInfo.empId);
-
+console.log(empId);
   const { data: salary,isLoading,error } = useGetMySalaryQuery(empId);
   return (
     <>

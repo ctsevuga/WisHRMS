@@ -39,7 +39,7 @@ export const salaryApiSlice = apiSlice.injectEndpoints({
     }),
      getMySalary: builder.query({
           query: (empId) => ({
-            url: `${SALARIES_URL}/${empId}`,
+            url: `${SALARIES_URL}/mine/${empId}`,
           }),
           keepUnusedDataFor: 5,
         }),

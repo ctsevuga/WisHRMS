@@ -91,7 +91,7 @@ const Header = () => {
               )}
 
               {/* Admin Links */}
-              {userInfo && userInfo.isAdmin && (
+              {userInfo && userInfo.role === "admin" && (
                 <NavDropdown title="Admin" id="adminmenu">
                   {/* <LinkContainer to="/admin/productlist">
                     <NavDropdown.Item>Products</NavDropdown.Item>
@@ -104,6 +104,9 @@ const Header = () => {
                   </LinkContainer>
                   <LinkContainer to="/admin/today">
                     <NavDropdown.Item>Today Attendance</NavDropdown.Item>
+                  </LinkContainer>
+                  <LinkContainer to="/admin/parameterlist">
+                    <NavDropdown.Item>Parameters</NavDropdown.Item>
                   </LinkContainer>
                   <LinkContainer to="/admin/dashboard">
                     <NavDropdown.Item>Attendance Dashboard</NavDropdown.Item>
