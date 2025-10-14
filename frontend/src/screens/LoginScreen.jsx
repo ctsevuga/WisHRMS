@@ -4,6 +4,7 @@ import { Form, Button, Row, Col } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import Loader from "../components/Loader";
 import FormContainer from "../components/FormContainer";
+import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { useLoginMutation } from "../slices/usersApiSlice";
 import { setCredentials } from "../slices/authSlice";
@@ -15,8 +16,11 @@ const LoginScreen = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const [login, { isLoading }] = useLoginMutation();
+
   const { userInfo } = useSelector((state) => state.auth);
+
   const { search } = useLocation();
   const sp = new URLSearchParams(search);
   const redirect = sp.get("redirect") || "/";
@@ -36,8 +40,10 @@ const LoginScreen = () => {
     try {
       const res = await login({ phone, password }).unwrap();
       dispatch(setCredentials({ ...res }));
+      console.log(res.empId);
 
-      navigate("/clockin");
+      // navigate(`/employee/${res.empId}`);
+      navigate("/input");
     } catch (err) {
       toast.error(err?.data?.message || err.error);
     }
@@ -87,14 +93,6 @@ const LoginScreen = () => {
           >
             Registration
           </Button>
-        </Col>
-      </Row>
-            <Row className='py-3'>
-        <Col>
-          Forgot Password?{' '}
-          <Link to={redirect ? `/forgot?redirect=${redirect}` : '/forgot'}>
-            Reset Password
-          </Link>
         </Col>
       </Row>
     </FormContainer>

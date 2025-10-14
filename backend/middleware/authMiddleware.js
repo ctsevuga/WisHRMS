@@ -28,24 +28,13 @@ const protect = asyncHandler(async (req, res, next) => {
 });
 
 // User must be an admin
-// const admin = (req, res, next) => {
-//   if (req.user && req.user.isAdmin) {
-//     next();
-//   } else {
-//     res.status(401);
-//     throw new Error('Not authorized as an admin');
-//   }
-// };
-const allowRole = (role) => {
-  return (req, res, next) => {
-    if (req.user && req.user.role === role) {
-      return next();
-    } else {
-      res.status(403); // Forbidden
-      throw new Error(`Not authorized as ${role}`);
-    }
-  };
+const admin = (req, res, next) => {
+  if (req.user && req.user.isAdmin) {
+    next();
+  } else {
+    res.status(401);
+    throw new Error('Not authorized as an admin');
+  }
 };
-const admin = allowRole('admin');
 
 export { protect, admin };

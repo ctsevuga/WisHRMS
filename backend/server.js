@@ -5,14 +5,9 @@ import cookieParser from "cookie-parser";
 dotenv.config();
 import connectDB from "./config/db.js";
 import userRoutes from "./routes/userRoutes.js";
-import employeeRoutes from "./routes/employeeRoutes.js";
-import attendaceRoutes from "./routes/attendanceRoutes.js";
-import leaveRoutes from "./routes/leaveRoutes.js";
-import configurationRoutes from "./routes/configurationRoutes.js";
-import salaryRoutes from "./routes/salaryRoutes.js";
-import monthRoutes from "./routes/monthRoutes.js";
-import payrollRoutes from "./routes/payrollRoutes.js";
-import parameterRoutes from "./routes/parameterRoutes.js";
+import inputRoutes from "./routes/inputRoutes.js";
+import productRoutes from "./routes/productRoutes.js";
+import outputRoutes from "./routes/outputRoutes.js";
 
 import uploadRoutes from "./routes/uploadRoutes.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
@@ -26,15 +21,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 app.use("/api/users", userRoutes);
-app.use("/api/employees", employeeRoutes);
-app.use("/api/attendences", attendaceRoutes);
-app.use("/api/leaves", leaveRoutes);
-app.use("/api/configurations", configurationRoutes);
-app.use("/api/salaries", salaryRoutes);
-app.use("/api/months", monthRoutes);
-app.use("/api/payrolls", payrollRoutes);
-app.use("/api/parameters", parameterRoutes);
-
+app.use("/api/inputs", inputRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/outputs", outputRoutes);
 
 app.use("/api/upload", uploadRoutes);
 

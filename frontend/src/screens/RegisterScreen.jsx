@@ -1,7 +1,7 @@
-import { useState} from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Form, Button, Row, Col } from 'react-bootstrap';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Loader from '../components/Loader';
 import FormContainer from '../components/FormContainer';
 
@@ -20,13 +20,18 @@ const RegisterScreen = () => {
 
   const [register, { isLoading }] = useRegisterMutation();
 
-  // const { userInfo } = useSelector((state) => state.auth);
+  const { userInfo } = useSelector((state) => state.auth);
 
   const { search } = useLocation();
   const sp = new URLSearchParams(search);
   const redirect = sp.get('redirect') || '/';
 
-  
+  // useEffect(() => {
+  //   if (userInfo) {
+  //     navigate(redirect);
+  //   }
+  // }, [navigate, redirect, userInfo]);
+
   const submitHandler = async (e) => {
     e.preventDefault();
 
@@ -36,7 +41,7 @@ const RegisterScreen = () => {
       try {
         const res = await register({ name, phone, password }).unwrap();
         dispatch(setCredentials({ ...res }));
-        navigate("/clockin");
+        navigate("/employee");
       } catch (err) {
         toast.error(err?.data?.message || err.error);
       }
