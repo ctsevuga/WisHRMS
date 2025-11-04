@@ -1,36 +1,28 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Form, Button, Row, Col } from 'react-bootstrap';
+import { Form, Button, Row, Col, Card, InputGroup } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
+import { FaUser, FaPhoneAlt, FaLock, FaCheck } from 'react-icons/fa';
+import { toast } from 'react-toastify';
+
 import Loader from '../components/Loader';
 import FormContainer from '../components/FormContainer';
-
 import { useRegisterMutation } from '../slices/usersApiSlice';
 import { setCredentials } from '../slices/authSlice';
-import { toast } from 'react-toastify';
 
 const RegisterScreen = () => {
   const [name, setName] = useState('');
-  const [phone, setPhone] = useState();
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
   const [register, { isLoading }] = useRegisterMutation();
-
-  const { userInfo } = useSelector((state) => state.auth);
 
   const { search } = useLocation();
   const sp = new URLSearchParams(search);
   const redirect = sp.get('redirect') || '/';
-
-  // useEffect(() => {
-  //   if (userInfo) {
-  //     navigate(redirect);
-  //   }
-  // }, [navigate, redirect, userInfo]);
 
   const submitHandler = async (e) => {
     e.preventDefault();
@@ -41,6 +33,7 @@ const RegisterScreen = () => {
       try {
         const res = await register({ name, phone, password }).unwrap();
         dispatch(setCredentials({ ...res }));
+        toast.success('Registration successful!');
         navigate("/employee");
       } catch (err) {
         toast.error(err?.data?.message || err.error);
@@ -50,64 +43,99 @@ const RegisterScreen = () => {
 
   return (
     <FormContainer>
-      <h1>Register</h1>
-      <Form onSubmit={submitHandler}>
-        <Form.Group className='my-2' controlId='name'>
-          <Form.Label>Name</Form.Label>
-          <Form.Control
-            type='name'
-            placeholder='Enter name'
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          ></Form.Control>
-        </Form.Group>
-        <Form.Group className="my-2" controlId="phoneNumber">
-          <Form.Label>Mobile Phone</Form.Label>
-          <Form.Control
-            type="number"
-            placeholder="Enter your mobile number"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            pattern="^\d{10}$"
-            required
-          ></Form.Control>
-        </Form.Group>
+      <Card className="shadow-lg p-4 my-5 mx-2 mx-md-auto" style={{ maxWidth: '500px' }}>
+        <Card.Body>
+          <h2 className="text-center text-primary mb-4">Register</h2>
 
- 
-        <Form.Group className='my-2' controlId='password'>
-          <Form.Label>Password</Form.Label>
-          <Form.Control
-            type='password'
-            placeholder='Enter password'
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          ></Form.Control>
-        </Form.Group>
-        <Form.Group className='my-2' controlId='confirmPassword'>
-          <Form.Label>Confirm Password</Form.Label>
-          <Form.Control
-            type='password'
-            placeholder='Confirm password'
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          ></Form.Control>
-        </Form.Group>
+          <Form onSubmit={submitHandler}>
+            <Form.Group className="mb-3" controlId="name">
+              <Form.Label>Name</Form.Label>
+              <InputGroup>
+                <InputGroup.Text>
+                  <FaUser />
+                </InputGroup.Text>
+                <Form.Control
+                  type="text"
+                  placeholder="Enter your full name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+              </InputGroup>
+            </Form.Group>
 
-        <Button disabled={isLoading} type='submit' variant='primary'>
-          Register
-        </Button>
+            <Form.Group className="mb-3" controlId="phoneNumber">
+              <Form.Label>Mobile Phone</Form.Label>
+              <InputGroup>
+                <InputGroup.Text>
+                  <FaPhoneAlt />
+                </InputGroup.Text>
+                <Form.Control
+                  type="tel"
+                  placeholder="Enter 10-digit mobile number"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  pattern="^\d{10}$"
+                  required
+                />
+              </InputGroup>
+            </Form.Group>
 
-        {isLoading && <Loader />}
-      </Form>
+            <Form.Group className="mb-3" controlId="password">
+              <Form.Label>Password</Form.Label>
+              <InputGroup>
+                <InputGroup.Text>
+                  <FaLock />
+                </InputGroup.Text>
+                <Form.Control
+                  type="password"
+                  placeholder="Enter password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </InputGroup>
+            </Form.Group>
 
-      <Row className='py-3'>
-        <Col>
-          Already have an account?{' '}
-          <Link to={redirect ? `/login?redirect=${redirect}` : '/'}>
-            Login
-          </Link>
-        </Col>
-      </Row>
+            <Form.Group className="mb-3" controlId="confirmPassword">
+              <Form.Label>Confirm Password</Form.Label>
+              <InputGroup>
+                <InputGroup.Text>
+                  <FaCheck />
+                </InputGroup.Text>
+                <Form.Control
+                  type="password"
+                  placeholder="Confirm password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+              </InputGroup>
+            </Form.Group>
+
+            <div className="d-grid mb-3">
+              <Button type="submit" variant="primary" size="lg" disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <Loader size="sm" /> Registering...
+                  </>
+                ) : (
+                  'Register'
+                )}
+              </Button>
+            </div>
+          </Form>
+
+          <Row className="py-3">
+            <Col className="text-center">
+              Already have an account?{' '}
+              <Link to={redirect ? `/login?redirect=${redirect}` : '/login'}>
+                Login
+              </Link>
+            </Col>
+          </Row>
+        </Card.Body>
+      </Card>
     </FormContainer>
   );
 };

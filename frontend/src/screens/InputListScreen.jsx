@@ -1,5 +1,14 @@
 import React, { useState } from "react";
-import { FaInfoCircle, FaTrashAlt, FaSearch } from "react-icons/fa";
+import {
+  FaInfoCircle,
+  FaTrashAlt,
+  FaSearch,
+  FaFilter,
+  FaBoxOpen,
+  FaCalendarAlt,
+  FaWeightHanging,
+  FaMoneyBillWave,
+} from "react-icons/fa";
 import { LinkContainer } from "react-router-bootstrap";
 import { toast } from "react-toastify";
 import {
@@ -16,6 +25,7 @@ import {
   Col,
   Alert,
   Badge,
+  Card,
 } from "react-bootstrap";
 
 const InputListScreen = () => {
@@ -46,7 +56,7 @@ const InputListScreen = () => {
     if (window.confirm("Are you sure you want to delete this input?")) {
       try {
         await deleteInput(id);
-        toast.success("Input deleted successfully");
+        toast.success("Input deleted successfully ✅");
         refetch();
       } catch (err) {
         toast.error(err?.data?.message || err.error);
@@ -56,69 +66,103 @@ const InputListScreen = () => {
 
   return (
     <div className="container py-4">
-      <h3 className="text-center text-primary mb-4 fw-bold">
-        🏭 Furnace Input List
-      </h3>
+      {/* Page Header */}
+      <div className="text-center mb-4">
+        <h3 className="fw-bold text-primary">
+          🏭 Furnace Input List
+        </h3>
+        <p className="text-muted">
+          Manage and monitor furnace input batches efficiently.
+        </p>
+      </div>
 
       {(isError || isProductError) && (
-        <Alert variant="danger">⚠️ Failed to load data.</Alert>
+        <Alert variant="danger" className="text-center">
+          ⚠️ Failed to load data. Please refresh or try again.
+        </Alert>
       )}
 
-      {/* Filters */}
-      <Form className="mb-4">
-        <Row className="g-2 align-items-end">
-          <Col xs={12} md={6} lg={4}>
-            <Form.Group>
-              <Form.Label>Filter by Product</Form.Label>
-              <Form.Select
-                name="product"
-                value={filters.product}
-                onChange={handleChange}
-                disabled={isProductLoading}
-              >
-                <option value="">-- Select Product --</option>
-                {products?.map((product) => (
-                  <option key={product._id} value={product._id}>
-                    {product.Product}
-                  </option>
-                ))}
-              </Form.Select>
-            </Form.Group>
-          </Col>
-          <Col xs={12} md={6} lg={2}>
-            <Button
-              variant="primary"
-              onClick={handleSearch}
-              className="w-100 d-flex align-items-center justify-content-center"
-            >
-              <FaSearch className="me-2" />
-              Search
-            </Button>
-          </Col>
-        </Row>
-      </Form>
+      {/* Filters Section */}
+      <Card className="shadow-sm mb-4 border-0">
+        <Card.Body>
+          <Form>
+            <Row className="g-2 align-items-end">
+              <Col xs={12} md={6} lg={4}>
+                <Form.Group>
+                  <Form.Label className="fw-semibold">
+                    <FaFilter className="me-2 text-secondary" />
+                    Filter by Product
+                  </Form.Label>
+                  <Form.Select
+                    name="product"
+                    value={filters.product}
+                    onChange={handleChange}
+                    disabled={isProductLoading}
+                  >
+                    <option value="">-- Select Product --</option>
+                    {products?.map((product) => (
+                      <option key={product._id} value={product._id}>
+                        {product.Product}
+                      </option>
+                    ))}
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col xs={12} md={6} lg={2}>
+                <Button
+                  variant="success"
+                  onClick={handleSearch}
+                  className="w-100 d-flex align-items-center justify-content-center fw-semibold"
+                >
+                  <FaSearch className="me-2" />
+                  Search
+                </Button>
+              </Col>
+            </Row>
+          </Form>
+        </Card.Body>
+      </Card>
 
       {/* Table or Spinner */}
       {isLoading ? (
         <div className="text-center mt-5">
           <Spinner animation="border" variant="primary" />
+          <p className="text-muted mt-2">Loading input data...</p>
         </div>
       ) : (
         <>
           {inputs?.length === 0 ? (
             <Alert variant="info" className="text-center">
-              🔍 No inputs found. Try adjusting your filters.
+              <FaBoxOpen className="me-2" />
+              No inputs found. Try adjusting your filters.
             </Alert>
           ) : (
             <div className="table-responsive">
-              <Table striped bordered hover responsive className="align-middle">
-                <thead className="table-dark text-center">
+              <Table
+                striped
+                bordered
+                hover
+                responsive
+                className="align-middle shadow-sm"
+              >
+                <thead
+                  className="table-primary text-center"
+                  style={{ fontSize: "0.9rem" }}
+                >
                   <tr>
-                    <th>Heat No</th>
+                    <th>
+                      <FaCalendarAlt className="me-1" /> Heat No
+                    </th>
                     <th>Date</th>
-                    <th>Product(s)</th>
-                    <th>Total Qty (Kg)</th>
-                    <th>Total Cost (RM)</th>
+                    <th>
+                      <FaBoxOpen className="me-1" /> Product(s)
+                    </th>
+                    <th>
+                      <FaWeightHanging className="me-1" /> Total Qty (Kg)
+                    </th>
+                    <th>
+                      <FaMoneyBillWave className="me-1" /> Total Cost (RM)
+                    </th>
                     <th>Cost/Kg</th>
                     <th>Overall Cost</th>
                     <th>Overall Cost/Kg</th>
@@ -129,22 +173,28 @@ const InputListScreen = () => {
                   {inputs?.map((input) => (
                     <tr key={input._id}>
                       <td>
-                        <Badge bg="secondary" pill>
+                        <Badge bg="dark" pill>
                           {input.heatNo}
                         </Badge>
                       </td>
-                      <td>{new Date(input.date).toLocaleDateString()}</td>
                       <td>
-                        {input.materials
-                          .map((mat) => mat.Product?.Product || "N/A")
-                          .join(", ")}
+                        {new Date(input.date).toLocaleDateString("en-GB")}
+                      </td>
+                      <td>
+                        <span className="text-secondary fw-semibold">
+                          {input.materials
+                            .map((mat) => mat.Product?.Product || "N/A")
+                            .join(", ")}
+                        </span>
                       </td>
                       <td>
                         <span className="fw-bold text-primary">
                           {input.totalMaterialInKg?.toFixed(2)}
                         </span>
                       </td>
-                      <td>RM {input.totalMaterialCost?.toFixed(2)}</td>
+                      <td className="text-warning fw-semibold">
+                        RM {input.totalMaterialCost?.toFixed(2)}
+                      </td>
                       <td>RM {input.materialkgPerCost?.toFixed(2)}</td>
                       <td className="text-success fw-bold">
                         RM {input.overallCost?.toFixed(2)}
@@ -152,24 +202,26 @@ const InputListScreen = () => {
                       <td className="text-success">
                         RM {input.overallmaterialkgPerCost?.toFixed(2)}
                       </td>
-                      <td className="d-flex justify-content-center gap-2">
+                      <td className="d-flex justify-content-center gap-2 flex-wrap">
                         <Button
-                          variant="danger"
+                          variant="outline-danger"
                           size="sm"
                           onClick={() => deleteHandler(input._id)}
                           title="Delete"
                           aria-label="Delete Input"
+                          className="d-flex align-items-center gap-1"
                         >
-                          <FaTrashAlt />
+                          <FaTrashAlt /> Delete
                         </Button>
                         <LinkContainer to={`/input/${input._id}/detail`}>
                           <Button
-                            variant="secondary"
+                            variant="outline-secondary"
                             size="sm"
                             title="View Details"
                             aria-label="View Details"
+                            className="d-flex align-items-center gap-1"
                           >
-                            <FaInfoCircle />
+                            <FaInfoCircle /> Details
                           </Button>
                         </LinkContainer>
                       </td>
@@ -181,6 +233,37 @@ const InputListScreen = () => {
           )}
         </>
       )}
+
+      {/* Extra Styling */}
+      <style jsx>{`
+        th {
+          vertical-align: middle !important;
+        }
+        .table thead th {
+          background: linear-gradient(
+            90deg,
+            rgba(0, 123, 255, 0.9),
+            rgba(0, 200, 255, 0.9)
+          );
+          color: white;
+        }
+        .table tbody tr:hover {
+          background-color: #f8f9fa;
+          transition: all 0.2s ease-in-out;
+        }
+        @media (max-width: 768px) {
+          h3 {
+            font-size: 1.3rem;
+          }
+          .table {
+            font-size: 0.85rem;
+          }
+          td,
+          th {
+            white-space: nowrap;
+          }
+        }
+      `}</style>
     </div>
   );
 };

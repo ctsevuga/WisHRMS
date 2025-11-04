@@ -1,4 +1,3 @@
-// src/components/OutputCreate.js
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useCreateOutputMutation } from "../slices/outputApiSlice";
@@ -12,32 +11,32 @@ import {
   Row,
   Col,
   Spinner,
+  Card,
+  InputGroup,
 } from "react-bootstrap";
+import { FaFire, FaWeightHanging, FaRecycle, FaHammer } from "react-icons/fa";
 
 const OutputScreen = () => {
   const { userInfo } = useSelector((state) => state.auth);
- 
+
   const [outputFG, setOutputFG] = useState(0);
   const [totalOutput, setTotalOutput] = useState(0);
   const [dross, setDross] = useState(0);
   const [iron, setIron] = useState(0);
   const [inputId, setInputId] = useState("");
-  const [createdBy, setCreatedBy] = useState(""); // Can be set via auth
 
   const { data: inputList = [], isLoading: loadingInputs } = useGetBasicInputsQuery();
   const [createOutput, { isLoading: submitting }] = useCreateOutputMutation();
-useEffect(() => {
-    if (userInfo?._id) {
-      setCreatedBy(userInfo._id);
-    }
-  }, [userInfo]);
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!inputId) {
+      toast.error("Please select a Heat No.");
+      return;
+    }
+
     try {
-      
       await createOutput({
         outputFG,
         totalOutput,
@@ -48,20 +47,22 @@ useEffect(() => {
       }).unwrap();
 
       toast.success("Output created successfully");
+
+      // Reset form
       setOutputFG(0);
       setTotalOutput(0);
       setDross(0);
       setIron(0);
       setInputId("");
-      setCreatedBy("");
     } catch (err) {
       toast.error(err?.data?.message || "Failed to create output");
     }
   };
 
   return (
-    <>
-      <div className="d-flex justify-content-between align-items-center my-4">
+    <Container className="my-5">
+      {/* Back Button */}
+      <div className="mb-4">
         <Link to="/outputlist">
           <Button variant="outline-primary" size="lg">
             ← Go Back
@@ -69,100 +70,132 @@ useEffect(() => {
         </Link>
       </div>
 
-      <Container className="mt-5">
-        <h2>Create Output Entry</h2>
+      <Card className="shadow-sm p-3 p-md-5 rounded-4 border-0">
+        <h2 className="text-center text-primary mb-4">🏭 Create Output Entry</h2>
+        <p className="text-muted text-center mb-4">
+          Fill in the output details for the selected heat number.
+        </p>
 
-        <Form onSubmit={handleSubmit}>
-          {/* Input Select at the top */}
-          <Row className="mb-3">
-            <Col md={6}>
-              <Form.Group controlId="inputId">
-                <Form.Label>Input (Heat No)</Form.Label>
-                <Form.Select
-                  value={inputId}
-                  onChange={(e) => setInputId(e.target.value)}
-                  required
-                >
-                  <option value="">-- Select Heat No --</option>
-                  {inputList.map((input) => (
-                    <option key={input._id} value={input._id}>
-                      {input.heatNo}
-                    </option>
-                  ))}
-                </Form.Select>
-              </Form.Group>
-            </Col>
+        {loadingInputs ? (
+          <div className="text-center my-5">
+            <Spinner animation="border" variant="primary" />
+            <p className="mt-3 text-muted">Loading input heat numbers...</p>
+          </div>
+        ) : (
+          <Form onSubmit={handleSubmit}>
+            {/* Heat No Select */}
+            <Form.Group controlId="inputId" className="mb-4">
+              <Form.Label>
+                <FaFire className="me-2 text-danger" />
+                Input Heat No
+              </Form.Label>
+              <Form.Select
+                value={inputId}
+                onChange={(e) => setInputId(e.target.value)}
+                required
+              >
+                <option value="">-- Select Heat No --</option>
+                {inputList.map((input) => (
+                  <option key={input._id} value={input._id}>
+                    {input.heatNo}
+                  </option>
+                ))}
+              </Form.Select>
+            </Form.Group>
 
-            {/* <Col md={6}>
-              <Form.Group controlId="createdBy">
-                <Form.Label>Created By (User ID)</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={createdBy}
-                  onChange={(e) => setCreatedBy(e.target.value)}
-                  required
-                />
-              </Form.Group>
-            </Col> */}
-          </Row>
+            {/* Outputs Grid */}
+            <Row className="g-3 mb-4">
+              <Col xs={12} md={6}>
+                <Form.Group controlId="outputFG">
+                  <Form.Label>
+                    <FaWeightHanging className="me-2 text-success" />
+                    Output FG (kg)
+                  </Form.Label>
+                  <Form.Control
+                    type="number"
+                    value={outputFG}
+                    min="0"
+                    onChange={(e) => setOutputFG(Number(e.target.value))}
+                    required
+                    className="border-success"
+                  />
+                </Form.Group>
+              </Col>
 
-          <Row className="mb-3">
-            <Col md={3}>
-              <Form.Group controlId="outputFG">
-                <Form.Label>Output FG (kg)</Form.Label>
-                <Form.Control
-                  type="number"
-                  value={outputFG}
-                  onChange={(e) => setOutputFG(Number(e.target.value))}
-                  required
-                />
-              </Form.Group>
-            </Col>
-            <Col md={3}>
-              <Form.Group controlId="totalOutput">
-                <Form.Label>Total Output (kg)</Form.Label>
-                <Form.Control
-                  type="number"
-                  value={totalOutput}
-                  onChange={(e) => setTotalOutput(Number(e.target.value))}
-                  required
-                />
-              </Form.Group>
-            </Col>
-            <Col md={3}>
-              <Form.Group controlId="dross">
-                <Form.Label>Dross (kg)</Form.Label>
-                <Form.Control
-                  type="number"
-                  value={dross}
-                  onChange={(e) => setDross(Number(e.target.value))}
-                />
-              </Form.Group>
-            </Col>
-            <Col md={3}>
-              <Form.Group controlId="iron">
-                <Form.Label>Iron (kg)</Form.Label>
-                <Form.Control
-                  type="number"
-                  value={iron}
-                  onChange={(e) => setIron(Number(e.target.value))}
-                />
-              </Form.Group>
-            </Col>
-          </Row>
+              <Col xs={12} md={6}>
+                <Form.Group controlId="totalOutput">
+                  <Form.Label>
+                    <FaRecycle className="me-2 text-warning" />
+                    Total Output (kg)
+                  </Form.Label>
+                  <Form.Control
+                    type="number"
+                    value={totalOutput}
+                    min="0"
+                    onChange={(e) => setTotalOutput(Number(e.target.value))}
+                    required
+                    className="border-warning"
+                  />
+                </Form.Group>
+              </Col>
 
-          <Button variant="primary" type="submit" disabled={submitting}>
-            {submitting ? (
-              <>
-                <Spinner animation="border" size="sm" /> Creating...
-              </>
-            ) : (
-              "Create Output"
-            )}
-          </Button>
-        </Form>
-      </Container>
-    </>
+              <Col xs={12} md={6}>
+                <Form.Group controlId="dross">
+                  <Form.Label>
+                    <FaHammer className="me-2 text-danger" />
+                    Dross (kg)
+                  </Form.Label>
+                  <Form.Control
+                    type="number"
+                    value={dross}
+                    min="0"
+                    onChange={(e) => setDross(Number(e.target.value))}
+                    className="border-danger"
+                  />
+                </Form.Group>
+              </Col>
+
+              <Col xs={12} md={6}>
+                <Form.Group controlId="iron">
+                  <Form.Label>
+                    <FaHammer className="me-2 text-secondary" />
+                    Iron (kg)
+                  </Form.Label>
+                  <Form.Control
+                    type="number"
+                    value={iron}
+                    min="0"
+                    onChange={(e) => setIron(Number(e.target.value))}
+                    className="border-secondary"
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <div className="d-grid">
+              <Button variant="primary" size="lg" type="submit" disabled={submitting}>
+                {submitting ? (
+                  <>
+                    <Spinner animation="border" size="sm" /> Creating...
+                  </>
+                ) : (
+                  "Create Output"
+                )}
+              </Button>
+            </div>
+          </Form>
+        )}
+      </Card>
+
+      <style jsx>{`
+        h2 {
+          font-weight: 700;
+        }
+        .form-control:focus {
+          box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+      `}</style>
+    </Container>
   );
 };
 

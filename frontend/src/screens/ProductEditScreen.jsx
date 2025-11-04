@@ -8,7 +8,10 @@ import {
   Container,
   Row,
   Col,
+  Card,
+  InputGroup,
 } from 'react-bootstrap';
+import { FaTag, FaDollarSign, FaArrowLeft } from 'react-icons/fa';
 import {
   useGetProductByIdQuery,
   useUpdateProductPriceMutation,
@@ -51,55 +54,88 @@ const ProductEditScreen = () => {
   };
 
   return (
-    <Container className="mt-5">
+    <Container className="my-5">
       <Row className="justify-content-md-center">
         <Col xs={12} md={6}>
-          <h3>Update Product Price</h3>
+          <Card className="shadow-sm rounded-4 border-0 p-4">
+            <Card.Body>
+              <div className="d-flex align-items-center mb-4">
+                <Button
+                  variant="outline-primary"
+                  className="me-3"
+                  onClick={() => navigate('/productList')}
+                >
+                  <FaArrowLeft className="me-1" /> Back
+                </Button>
+                <h3 className="mb-0 text-primary">Update Product Price</h3>
+              </div>
 
-          {isLoading ? (
-            <div className="text-center">
-              <Spinner animation="border" />
-            </div>
-          ) : isError ? (
-            <Alert variant="danger">
-              {error?.data?.message || 'Failed to load product.'}
-            </Alert>
-          ) : (
-            <Form onSubmit={handleSubmit}>
-              <Form.Group className="mb-3">
-                <Form.Label>Product Name</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={product.product ?? product.Product}
-                  disabled
-                />
-              </Form.Group>
+              {isLoading ? (
+                <div className="text-center my-5">
+                  <Spinner animation="border" variant="primary" />
+                </div>
+              ) : isError ? (
+                <Alert variant="danger">
+                  {error?.data?.message || 'Failed to load product.'}
+                </Alert>
+              ) : (
+                <Form onSubmit={handleSubmit}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>
+                      <FaTag className="me-2 text-success" />
+                      Product Name
+                    </Form.Label>
+                    <Form.Control
+                      type="text"
+                      value={product.product ?? product.Product}
+                      disabled
+                      className="border-success"
+                    />
+                  </Form.Group>
 
-              <Form.Group className="mb-3">
-                <Form.Label>Price</Form.Label>
-                <Form.Control
-                  type="number"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                />
-              </Form.Group>
+                  <Form.Group className="mb-3">
+                    <Form.Label>
+                      <FaDollarSign className="me-2 text-warning" />
+                      Price
+                    </Form.Label>
+                    <InputGroup>
+                      <InputGroup.Text>₹</InputGroup.Text>
+                      <Form.Control
+                        type="number"
+                        value={price}
+                        onChange={(e) => setPrice(e.target.value)}
+                        className="border-warning"
+                        min="0"
+                      />
+                    </InputGroup>
+                  </Form.Group>
 
-              {formError && <Alert variant="danger">{formError}</Alert>}
-              {successMessage && <Alert variant="success">{successMessage}</Alert>}
+                  {formError && <Alert variant="danger">{formError}</Alert>}
+                  {successMessage && <Alert variant="success">{successMessage}</Alert>}
 
-              <Button type="submit" variant="primary" disabled={isUpdating}>
-                {isUpdating ? (
-                  <>
-                    <Spinner animation="border" size="sm" /> Updating...
-                  </>
-                ) : (
-                  'Update Price'
-                )}
-              </Button>
-            </Form>
-          )}
+                  <div className="d-grid mt-3">
+                    <Button type="submit" variant="primary" size="lg" disabled={isUpdating}>
+                      {isUpdating ? (
+                        <>
+                          <Spinner animation="border" size="sm" /> Updating...
+                        </>
+                      ) : (
+                        'Update Price'
+                      )}
+                    </Button>
+                  </div>
+                </Form>
+              )}
+            </Card.Body>
+          </Card>
         </Col>
       </Row>
+
+      <style jsx>{`
+        .form-control:focus {
+          box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+      `}</style>
     </Container>
   );
 };
