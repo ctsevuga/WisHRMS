@@ -10,7 +10,6 @@ import {
   Alert,
   Table,
   ListGroup,
-  Badge,
 } from "react-bootstrap";
 import {
   FaFire,
@@ -29,12 +28,7 @@ const OutputDetailsScreen = () => {
   const { id } = useParams();
   const [output, setOutput] = useState(null);
 
-  const {
-    data: fetchedOutput,
-    refetch,
-    isLoading,
-    error,
-  } = useGetOutputQuery(id);
+  const { data: fetchedOutput, isLoading, error } = useGetOutputQuery(id);
 
   useEffect(() => {
     if (fetchedOutput) setOutput(fetchedOutput);
@@ -97,32 +91,32 @@ const OutputDetailsScreen = () => {
               <Row>
                 <Col xs={6}>
                   <p>
-                    <strong>Output FG:</strong> {output.outputFG} Kg
+                    <strong>Output FG:</strong> {output.outputFG || 0} Kg
                   </p>
                   <p>
-                    <strong>Total Output:</strong> {output.totalOutput} Kg
+                    <strong>Total Output:</strong> {output.totalOutput || 0} Kg
                   </p>
                   <p>
-                    <strong>Dross:</strong> {output.dross} Kg (
-                    {output.drossInPerc?.toFixed(2)}%)
+                    <strong>Dross:</strong> {output.dross || 0} Kg (
+                    {output.drossInPerc?.toFixed(2) || 0}%)
                   </p>
                   <p>
-                    <strong>Iron:</strong> {output.iron} Kg (
-                    {output.ironInPerc?.toFixed(2)}%)
+                    <strong>Iron:</strong> {output.iron || 0} Kg (
+                    {output.ironInPerc?.toFixed(2) || 0}%)
                   </p>
                 </Col>
                 <Col xs={6}>
                   <p>
                     <strong>Actual Recovery:</strong>{" "}
-                    {output.actualRecovery?.toFixed(2)}%
+                    {output.actualRecovery?.toFixed(2) || 0}%
                   </p>
                   <p>
                     <strong>Actual Cost/Kg:</strong> ₹
-                    {output.actualCostPerKg?.toFixed(2)}
+                    {output.actualCostPerKg?.toFixed(2) || 0}
                   </p>
                   <p>
                     <strong>Overall Cost/Kg:</strong> ₹
-                    {output.overallCostPerKg?.toFixed(2)}
+                    {output.overallCostPerKg?.toFixed(2) || 0}
                   </p>
                 </Col>
               </Row>
@@ -150,12 +144,14 @@ const OutputDetailsScreen = () => {
             <Card.Body>
               <p>
                 <FaFire className="me-2 text-danger" />
-                <strong>Heat No:</strong> {input?.heatNo}
+                <strong>Heat No:</strong> {input?.heatNo || "N/A"}
               </p>
               <p>
                 <FaCalendarAlt className="me-2 text-info" />
                 <strong>Date:</strong>{" "}
-                {new Date(input?.date).toLocaleDateString()}
+                {input?.date
+                  ? new Date(input.date).toLocaleDateString()
+                  : "N/A"}
               </p>
               <p>
                 <strong>Details:</strong> {input?.details || "N/A"}
@@ -166,22 +162,34 @@ const OutputDetailsScreen = () => {
               </p>
               <hr />
               <p>
-                <strong>Total Material (Kg):</strong> {input?.totalMaterialInKg}
+                <strong>Total Material (Kg):</strong>{" "}
+                {input?.totalMaterialInKg || 0}
               </p>
               <p>
                 <strong>Total Material Cost:</strong> ₹
-                {input?.totalMaterialCost?.toFixed(2)}
+                {input?.totalMaterialCost?.toFixed(2) || 0}
               </p>
               <p>
                 <strong>Cost per Kg:</strong> ₹
-                {input?.materialkgPerCost?.toFixed(2)}
+                {input?.materialkgPerCost?.toFixed(2) || 0}
               </p>
               <p>
-                <strong>Overall Cost:</strong> ₹{input?.overallCost?.toFixed(2)}
+                <strong>Overall Cost:</strong> ₹
+                {input?.overallCost?.toFixed(2) || 0}
               </p>
               <p>
                 <strong>Overall Cost/Kg:</strong> ₹
-                {input?.overallmaterialkgPerCost?.toFixed(2)}
+                {input?.overallmaterialkgPerCost?.toFixed(2) || 0}
+              </p>
+
+              {/* ✅ Newly Added Fields */}
+              <p>
+                <strong>Conversion Cost:</strong> ₹
+                {input?.conversionCost?.toFixed(2) || 0}
+              </p>
+              <p>
+                <strong>Cost with Conversion/Kg:</strong> ₹
+                {input?.costWithConversionKgPerCost?.toFixed(2) || 0}
               </p>
             </Card.Body>
           </Card>
@@ -197,7 +205,13 @@ const OutputDetailsScreen = () => {
           </Card.Header>
           <Card.Body className="p-0">
             <div className="table-responsive">
-              <Table striped bordered hover responsive className="mb-0 text-center align-middle">
+              <Table
+                striped
+                bordered
+                hover
+                responsive
+                className="mb-0 text-center align-middle"
+              >
                 <thead className="table-primary">
                   <tr>
                     <th>Product</th>
@@ -209,8 +223,8 @@ const OutputDetailsScreen = () => {
                   {input.materials.map((mat, idx) => (
                     <tr key={idx}>
                       <td>{mat.Product?.Product || "N/A"}</td>
-                      <td>{mat.qtyInKg}</td>
-                      <td>₹{mat.cost?.toFixed(2)}</td>
+                      <td>{mat.qtyInKg || 0}</td>
+                      <td>₹{mat.cost?.toFixed(2) || 0}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -231,19 +245,21 @@ const OutputDetailsScreen = () => {
             </Card.Header>
             <ListGroup variant="flush">
               <ListGroup.Item>
-                👷 Workers' Salary: ₹{input?.workersSalary}
+                👷 Workers' Salary: ₹{input?.workersSalary || 0}
               </ListGroup.Item>
               <ListGroup.Item>
-                👔 Middle Management: ₹{input?.middleManagementSalary}
+                👔 Middle Management: ₹{input?.middleManagementSalary || 0}
               </ListGroup.Item>
               <ListGroup.Item>
-                🧑‍💼 Top Management: ₹{input?.topManagementSalary}
+                🧑‍💼 Top Management: ₹{input?.topManagementSalary || 0}
               </ListGroup.Item>
               <ListGroup.Item>
                 <MdOutlineFoodBank className="me-2 text-success" />
-                Food Cost: ₹{input?.foodCost}
+                Food Cost: ₹{input?.foodCost || 0}
               </ListGroup.Item>
-              <ListGroup.Item>⛽ Forklift Fuel: ₹{input?.fuelForkLiftCost}</ListGroup.Item>
+              <ListGroup.Item>
+                ⛽ Forklift Fuel: ₹{input?.fuelForkLiftCost || 0}
+              </ListGroup.Item>
             </ListGroup>
           </Card>
         </Col>
@@ -258,21 +274,39 @@ const OutputDetailsScreen = () => {
             <ListGroup variant="flush">
               <ListGroup.Item>
                 <FaGasPump className="me-2 text-danger" />
-                Gas Cost: ₹{input?.gasCost}
+                Gas Cost: ₹{input?.gasCost || 0}
               </ListGroup.Item>
               <ListGroup.Item>
                 <MdOutlineWaterDrop className="me-2 text-primary" />
-                Water Cost: ₹{input?.waterCost}
+                Water Cost: ₹{input?.waterCost || 0}
               </ListGroup.Item>
               <ListGroup.Item>
                 <BsLightningChargeFill className="me-2 text-warning" />
-                Electricity Cost: ₹{input?.electricityCost}
+                Electricity Cost: ₹{input?.electricityCost || 0}
               </ListGroup.Item>
               <ListGroup.Item>
-                🛠 Maintenance Cost: ₹{input?.maintenanceCost}
+                🛠 Maintenance Cost: ₹{input?.maintenanceCost || 0}
               </ListGroup.Item>
             </ListGroup>
           </Card>
+        </Col>
+        <Col xs={6}>
+          <p>
+            <strong>Actual Recovery:</strong>{" "}
+            {output.actualRecovery?.toFixed(2) || 0}%
+          </p>
+          <p>
+            <strong>Actual Cost/Kg:</strong> ₹
+            {output.actualCostPerKg?.toFixed(2) || 0}
+          </p>
+          <p>
+            <strong>Overall Cost/Kg:</strong> ₹
+            {output.overallCostPerKg?.toFixed(2) || 0}
+          </p>
+          <p>
+            <strong>Cost with Conversion/Kg:</strong> ₹
+            {output.costWithConversionPerKg?.toFixed(2) || 0}
+          </p>
         </Col>
       </Row>
 

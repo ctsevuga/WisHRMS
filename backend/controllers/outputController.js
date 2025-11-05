@@ -13,14 +13,16 @@ const createOutput = async (req, res) => {
       input: inputId,
       createdBy,
     } = req.body;
-console.log({
-  outputFG,
+
+    console.log({
+      outputFG,
       totalOutput,
       dross,
       iron,
       inputId,
       createdBy
-})
+    });
+
     // Validate required fields
     if (!outputFG || !totalOutput || !inputId || !createdBy) {
       return res.status(400).json({ message: "Missing required fields." });
@@ -36,11 +38,13 @@ console.log({
     const other = inputDoc.totalMaterialInKg - (totalOutput + dross + iron);
     const drossInPerc = (dross / inputDoc.totalMaterialInKg) * 100;
     const ironInPerc = (iron / inputDoc.totalMaterialInKg) * 100;
-
     const actualRecovery = (totalOutput / inputDoc.totalMaterialInKg) * 100;
-
     const actualCostPerKg = inputDoc.totalMaterialCost / totalOutput;
     const overallCostPerKg = inputDoc.overallCost / totalOutput;
+
+    // Safely calculate costWithConversionPerKg
+    const conversionCost = typeof inputDoc.conversionCost === 'number' ? inputDoc.conversionCost : 0;
+    const costWithConversionPerKg = overallCostPerKg + conversionCost;
 
     // Create new Output document
     const newOutput = new Output({
@@ -54,6 +58,7 @@ console.log({
       actualRecovery,
       actualCostPerKg,
       overallCostPerKg,
+      costWithConversionPerKg,
       input: inputId,
       createdBy,
     });
@@ -68,6 +73,8 @@ console.log({
     res.status(500).json({ message: "Internal server error." });
   }
 };
+
+
 const getAllOutputs = async (req, res) => {
   try {
     const outputs = await Output.find()
@@ -75,9 +82,11 @@ const getAllOutputs = async (req, res) => {
         path: 'input',
         select: 'heatNo' // Only include the heatNo from Input
       })
-      .select('details input outputFG totalOutput dross iron other drossInPerc ironInPerc actualRecovery actualCostPerKg overallCostPerKg createdAt updatedAt')
+      .select(
+        'details input outputFG totalOutput dross iron other drossInPerc ironInPerc actualRecovery actualCostPerKg overallCostPerKg costWithConversionPerKg createdAt updatedAt'
+      )
       .sort({ createdAt: -1 });
-      
+
     res.status(200).json({
       success: true,
       data: outputs
@@ -91,33 +100,6 @@ const getAllOutputs = async (req, res) => {
   }
 };
 
-// controllers/outputController.js
-
-
-
-// const getOutputById = async (req, res) => {
-//   try {
-//     const output = await Output.findById(req.params.id)
-//       .populate({
-//         path: "input",
-//         populate: {
-//           path: "materials.Product",
-//           model: "Product",
-//         },
-//       })
-//       .populate("createdBy", "name ")
-//       .exec();
-
-//     if (!output) {
-//       return res.status(404).json({ message: "Output not found" });
-//     }
-
-//     res.status(200).json(output);
-//   } catch (error) {
-//     console.error("Error fetching output:", error);
-//     res.status(500).json({ message: "Server error" });
-//   }
-// };
 
 
 const getOutputById = async (req, res) => {
@@ -143,12 +125,21 @@ const getOutputById = async (req, res) => {
       return res.status(404).json({ message: "Output not found" });
     }
 
+    // Optional: ensure costWithConversionPerKg is computed for old outputs
+    if (output.costWithConversionPerKg === undefined && output.input?.conversionCost !== undefined) {
+      const overallCostPerKg = output.overallCostPerKg ?? (output.input.overallCost / output.totalOutput);
+      const conversionCost = output.input.conversionCost ?? 0;
+      output.costWithConversionPerKg = overallCostPerKg + conversionCost;
+    }
+
     res.status(200).json(output);
   } catch (error) {
     console.error("Error fetching output:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
+
+
 
 const deleteOutput = asyncHandler(async (req, res) => {
   const output = await Output.findById(req.params.id);
@@ -161,31 +152,6 @@ const deleteOutput = asyncHandler(async (req, res) => {
     throw new Error("Output not found");
   }
 });
-// controllers/outputController.js
 
-
-
-// const getOutputById = async (req, res) => {
-//   try {
-//     const output = await Output.findById(req.params.id)
-//       .populate({
-//         path: "input",
-//         select: "-__v", // optionally remove __v
-//       })
-//       .populate({
-//         path: "createdBy",
-//         select: "name email", // or any fields you want
-//       });
-
-//     if (!output) {
-//       return res.status(404).json({ message: "Output not found" });
-//     }
-
-//     res.status(200).json(output);
-//   } catch (error) {
-//     console.error("Error fetching output:", error);
-//     res.status(500).json({ message: "Server error" });
-//   }
-// };
 
 export { createOutput,getAllOutputs,getOutputById, deleteOutput };

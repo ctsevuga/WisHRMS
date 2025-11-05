@@ -82,6 +82,7 @@ const OutputListScreen = () => {
               <Row>
                 <Col xs={6}>
                   <p><FaRupeeSign className="me-2 text-primary" />Cost/Kg: ₹{output.actualCostPerKg?.toFixed(2)}</p>
+                  <p><FaRupeeSign className="me-2 text-info" />Cost w/ Conversion: ₹{output.costWithConversionPerKg?.toFixed(2)}</p>
                 </Col>
                 <Col xs={6}>
                   <p><FaRupeeSign className="me-2 text-secondary" />Overall: ₹{output.overallCostPerKg?.toFixed(2)}</p>
@@ -125,6 +126,7 @@ const OutputListScreen = () => {
             <th>Recovery %</th>
             <th>Cost/Kg</th>
             <th>Overall Cost/Kg</th>
+            <th>Cost w/ Conversion</th>
             <th>Created At</th>
             <th>Actions</th>
           </tr>
@@ -148,6 +150,7 @@ const OutputListScreen = () => {
                 </td>
                 <td>₹{output?.actualCostPerKg?.toFixed(2)}</td>
                 <td>₹{output?.overallCostPerKg?.toFixed(2)}</td>
+                <td>₹{output?.costWithConversionPerKg?.toFixed(2)}</td>
                 <td>{new Date(output.createdAt).toLocaleDateString()}</td>
                 <td>
                   <div className="d-flex justify-content-center gap-2">
@@ -174,7 +177,7 @@ const OutputListScreen = () => {
             ))
           ) : (
             <tr>
-              <td colSpan="13" className="text-center">
+              <td colSpan="14" className="text-center">
                 <Alert variant="info" className="mb-0">
                   No outputs found.
                 </Alert>

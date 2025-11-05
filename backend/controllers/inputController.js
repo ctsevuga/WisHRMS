@@ -7,7 +7,7 @@ const createInput = async (req, res) => {
   try {
     const safeNumber = (val) => (typeof val === "number" && !isNaN(val) ? val : 0);
 
-    const { heatNo, details, createdBy, materials } = req.body;
+    const { heatNo, details, createdBy, materials, date  } = req.body;
 
     // Cost inputs
     const workersSalary = safeNumber(req.body.workersSalary);
@@ -92,6 +92,7 @@ const createInput = async (req, res) => {
       heatNo,
       details,
       createdBy,
+      date: date ? new Date(date) : undefined,
       materials: enrichedMaterials,
       totalMaterialCost,
       totalMaterialInKg,
