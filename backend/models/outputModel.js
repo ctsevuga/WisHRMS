@@ -16,6 +16,7 @@ const outputSchema = new mongoose.Schema({
   actualRecovery: Number,
   actualCostPerKg: Number,
   overallCostPerKg: Number,
+  costWithConversionPerKg: Number,
   
 
 }, { timestamps: true });
