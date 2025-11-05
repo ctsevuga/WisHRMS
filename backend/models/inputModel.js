@@ -22,8 +22,10 @@ const inputSchema = new mongoose.Schema({
   foodCost: Number,
   fuelForkLiftCost: Number,
   maintenanceCost: Number,
+  conversionCost: Number,
   overallCost: Number,
   overallmaterialkgPerCost: Number,
+  costWithConversionKgPerCost: Number,
 
 }, { timestamps: true });
 

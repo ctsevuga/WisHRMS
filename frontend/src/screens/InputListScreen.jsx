@@ -45,7 +45,7 @@ const InputListScreen = () => {
   } = useGetProductsQuery();
 
   const [deleteInput] = useDeleteInputMutation();
-
+  console.log(inputs);
   const handleChange = (e) => {
     setFilters({ ...filters, [e.target.name]: e.target.value });
   };
@@ -146,88 +146,91 @@ const InputListScreen = () => {
                 className="align-middle shadow-sm"
               >
                 <thead
-                  className="table-primary text-center"
-                  style={{ fontSize: "0.9rem" }}
-                >
-                  <tr>
-                    <th>
-                      <FaCalendarAlt className="me-1" /> Heat No
-                    </th>
-                    <th>Date</th>
-                    <th>
-                      <FaBoxOpen className="me-1" /> Product(s)
-                    </th>
-                    <th>
-                      <FaWeightHanging className="me-1" /> Total Qty (Kg)
-                    </th>
-                    <th>
-                      <FaMoneyBillWave className="me-1" /> Total Cost (RM)
-                    </th>
-                    <th>Cost/Kg</th>
-                    <th>Overall Cost</th>
-                    <th>Overall Cost/Kg</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="text-center">
-                  {inputs?.map((input) => (
-                    <tr key={input._id}>
-                      <td>
-                        <Badge bg="dark" pill>
-                          {input.heatNo}
-                        </Badge>
-                      </td>
-                      <td>
-                        {new Date(input.date).toLocaleDateString("en-GB")}
-                      </td>
-                      <td>
-                        <span className="text-secondary fw-semibold">
-                          {input.materials
-                            .map((mat) => mat.Product?.Product || "N/A")
-                            .join(", ")}
-                        </span>
-                      </td>
-                      <td>
-                        <span className="fw-bold text-primary">
-                          {input.totalMaterialInKg?.toFixed(2)}
-                        </span>
-                      </td>
-                      <td className="text-warning fw-semibold">
-                        RM {input.totalMaterialCost?.toFixed(2)}
-                      </td>
-                      <td>RM {input.materialkgPerCost?.toFixed(2)}</td>
-                      <td className="text-success fw-bold">
-                        RM {input.overallCost?.toFixed(2)}
-                      </td>
-                      <td className="text-success">
-                        RM {input.overallmaterialkgPerCost?.toFixed(2)}
-                      </td>
-                      <td className="d-flex justify-content-center gap-2 flex-wrap">
-                        <Button
-                          variant="outline-danger"
-                          size="sm"
-                          onClick={() => deleteHandler(input._id)}
-                          title="Delete"
-                          aria-label="Delete Input"
-                          className="d-flex align-items-center gap-1"
-                        >
-                          <FaTrashAlt /> Delete
-                        </Button>
-                        <LinkContainer to={`/input/${input._id}/detail`}>
-                          <Button
-                            variant="outline-secondary"
-                            size="sm"
-                            title="View Details"
-                            aria-label="View Details"
-                            className="d-flex align-items-center gap-1"
-                          >
-                            <FaInfoCircle /> Details
-                          </Button>
-                        </LinkContainer>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
+  className="table-primary text-center"
+  style={{ fontSize: "0.9rem" }}
+>
+  <tr>
+    <th>
+      <FaCalendarAlt className="me-1" /> Heat No
+    </th>
+    <th>Date</th>
+    <th>
+      <FaBoxOpen className="me-1" /> Product(s)
+    </th>
+    <th>
+      <FaWeightHanging className="me-1" /> Total Qty (Kg)
+    </th>
+    <th>
+      <FaMoneyBillWave className="me-1" /> Total Cost (RM)
+    </th>
+    <th>Cost/Kg</th>
+    <th>Overall Cost</th>
+    <th>Overall Cost/Kg</th>
+    <th>Cost with Conversion/Kg</th> {/* ✅ New Column */}
+    <th>Actions</th>
+  </tr>
+</thead>
+<tbody className="text-center">
+  {inputs?.map((input) => (
+    <tr key={input._id}>
+      <td>
+        <Badge bg="dark" pill>
+          {input.heatNo}
+        </Badge>
+      </td>
+      <td>{new Date(input.date).toLocaleDateString("en-GB")}</td>
+      <td>
+        <span className="text-secondary fw-semibold">
+          {input.materials
+            .map((mat) => mat.Product?.Product || "N/A")
+            .join(", ")}
+        </span>
+      </td>
+      <td>
+        <span className="fw-bold text-primary">
+          {input.totalMaterialInKg?.toFixed(2)}
+        </span>
+      </td>
+      <td className="text-warning fw-semibold">
+        RM {input.totalMaterialCost?.toFixed(2)}
+      </td>
+      <td>RM {input.materialkgPerCost?.toFixed(2)}</td>
+      <td className="text-success fw-bold">
+        RM {input.overallCost?.toFixed(2)}
+      </td>
+      <td className="text-success">
+        RM {input.overallmaterialkgPerCost?.toFixed(2)}
+      </td>
+      <td className="text-info fw-semibold">
+        RM {input.costWithConversionKgPerCost?.toFixed(2)} {/* ✅ New Value */}
+      </td>
+      <td className="d-flex justify-content-center gap-2 flex-wrap">
+        <Button
+          variant="outline-danger"
+          size="sm"
+          onClick={() => deleteHandler(input._id)}
+          title="Delete"
+          aria-label="Delete Input"
+          className="d-flex align-items-center gap-1"
+        >
+          <FaTrashAlt /> Delete
+        </Button>
+        <LinkContainer to={`/input/${input._id}/detail`}>
+          <Button
+            variant="outline-secondary"
+            size="sm"
+            title="View Details"
+            aria-label="View Details"
+            className="d-flex align-items-center gap-1"
+          >
+            <FaInfoCircle /> Details
+          </Button>
+        </LinkContainer>
+      </td>
+    </tr>
+  ))}
+</tbody>
+
               </Table>
             </div>
           )}

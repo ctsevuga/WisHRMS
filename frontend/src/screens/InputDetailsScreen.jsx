@@ -258,6 +258,43 @@ const InputDetailsScreen = () => {
                 </li>
               </ul>
             </Col>
+            <Col xs={12} md={6}>
+  <Card className="border-0 shadow-sm">
+    <Card.Header className="bg-warning text-dark fw-bold">
+      <FaCogs className="me-2" />
+      Overall Summary
+    </Card.Header>
+    <Card.Body>
+      <ul className="list-group list-group-flush">
+        <li className="list-group-item d-flex justify-content-between">
+          <span>Overall Cost</span>
+          <strong className="text-danger">
+            ₹{input.overallCost?.toFixed(2)}
+          </strong>
+        </li>
+        <li className="list-group-item d-flex justify-content-between">
+          <span>Overall Cost per Kg</span>
+          <strong className="text-primary">
+            ₹{input.overallmaterialkgPerCost?.toFixed(2)}
+          </strong>
+        </li>
+        <li className="list-group-item d-flex justify-content-between">
+          <span>Conversion Cost</span>
+          <strong className="text-warning">
+            ₹{input.conversionCost?.toFixed(2)}
+          </strong>
+        </li>
+        <li className="list-group-item d-flex justify-content-between">
+          <span>Cost with Conversion per Kg</span>
+          <strong className="text-success">
+            ₹{input.costWithConversionKgPerCost?.toFixed(2)}
+          </strong>
+        </li>
+      </ul>
+    </Card.Body>
+  </Card>
+</Col>
+
           </Row>
         </Card.Body>
       </Card>

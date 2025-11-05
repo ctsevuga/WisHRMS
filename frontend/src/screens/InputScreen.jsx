@@ -48,6 +48,7 @@ const InputScreen = () => {
         foodCost: 0,
         fuelForkLiftCost: 0,
         maintenanceCost: 0,
+        conversionCost: 0, // ✅ new field
       });
     }
   }, [userInfo]);
@@ -98,17 +99,29 @@ const InputScreen = () => {
     }
 
     try {
+      // Ensure all numeric fields are numbers
       const cleanedInput = {
         ...input,
+        workersSalary: parseFloat(input.workersSalary) || 0,
+        middleManagementSalary: parseFloat(input.middleManagementSalary) || 0,
+        topManagementSalary: parseFloat(input.topManagementSalary) || 0,
+        gasCost: parseFloat(input.gasCost) || 0,
+        waterCost: parseFloat(input.waterCost) || 0,
+        electricityCost: parseFloat(input.electricityCost) || 0,
+        foodCost: parseFloat(input.foodCost) || 0,
+        fuelForkLiftCost: parseFloat(input.fuelForkLiftCost) || 0,
+        maintenanceCost: parseFloat(input.maintenanceCost) || 0,
+        conversionCost: parseFloat(input.conversionCost) || 0,
         materials: input.materials.map(({ Product, qtyInKg }) => ({
           Product,
-          qtyInKg,
+          qtyInKg: parseFloat(qtyInKg) || 0,
         })),
       };
 
       await createInput(cleanedInput).unwrap();
       toast.success("✅ Input created successfully!");
 
+      // Reset form
       setInput({
         createdBy: userInfo._id,
         heatNo: "",
@@ -124,6 +137,7 @@ const InputScreen = () => {
         foodCost: 0,
         fuelForkLiftCost: 0,
         maintenanceCost: 0,
+        conversionCost: 0,
       });
     } catch (error) {
       toast.error(error?.data?.message || error.error);
@@ -160,7 +174,10 @@ const InputScreen = () => {
                     type="text"
                     value={input.heatNo}
                     placeholder="Enter Heat Number"
-                    onChange={(e) => handleInputChange("heatNo", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("heatNo", e.target.value)
+                    }
+                    required
                   />
                 </Form.Group>
               </Col>
@@ -173,6 +190,7 @@ const InputScreen = () => {
                     type="date"
                     value={input.date}
                     onChange={(e) => handleInputChange("date", e.target.value)}
+                    required
                   />
                 </Form.Group>
               </Col>
@@ -214,12 +232,9 @@ const InputScreen = () => {
                           className={isDuplicate ? "is-invalid" : ""}
                           value={mat.Product}
                           onChange={(e) =>
-                            handleMaterialChange(
-                              index,
-                              "Product",
-                              e.target.value
-                            )
+                            handleMaterialChange(index, "Product", e.target.value)
                           }
+                          required
                         >
                           <option value="">Select Product</option>
                           {products.map((product) => (
@@ -240,14 +255,13 @@ const InputScreen = () => {
                         <Form.Label>Quantity (kg)</Form.Label>
                         <Form.Control
                           type="number"
+                          min="0"
+                          step="0.01"
                           value={mat.qtyInKg}
                           onChange={(e) =>
-                            handleMaterialChange(
-                              index,
-                              "qtyInKg",
-                              e.target.value
-                            )
+                            handleMaterialChange(index, "qtyInKg", e.target.value)
                           }
+                          required
                         />
                       </Form.Group>
                     </Col>
@@ -294,19 +308,29 @@ const InputScreen = () => {
                 "foodCost",
                 "fuelForkLiftCost",
                 "maintenanceCost",
+                "conversionCost", // ✅ mandatory
               ].map((field) => (
                 <Col key={field} xs={12} sm={6} md={4}>
                   <Form.Group>
                     <Form.Label className="fw-semibold text-capitalize">
                       {field.replace(/([A-Z])/g, " $1")}
+                      {field === "conversionCost" && (
+                        <span className="text-danger">*</span>
+                      )}
                     </Form.Label>
                     <Form.Control
                       type="number"
-                      min="0"
+                      min={field === "conversionCost" ? "0.01" : "0"}
+                      step="0.01"
                       value={input[field]}
-                      onChange={(e) =>
-                        handleInputChange(field, parseFloat(e.target.value) || 0)
-                      }
+                      onChange={(e) => {
+                        const val = parseFloat(e.target.value);
+                        handleInputChange(
+                          field,
+                          !isNaN(val) && val > 0 ? val : 0
+                        );
+                      }}
+                      required={field === "conversionCost"}
                     />
                   </Form.Group>
                 </Col>
@@ -328,7 +352,6 @@ const InputScreen = () => {
         </div>
       </Form>
 
-      {/* Custom Styling */}
       <style jsx>{`
         .accordion-button {
           font-weight: 600;
