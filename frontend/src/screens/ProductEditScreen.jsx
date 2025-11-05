@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   Form,
   Button,
@@ -10,23 +10,30 @@ import {
   Col,
   Card,
   InputGroup,
-} from 'react-bootstrap';
-import { FaTag, FaDollarSign, FaArrowLeft } from 'react-icons/fa';
+} from "react-bootstrap";
+import { FaTag, FaDollarSign, FaArrowLeft } from "react-icons/fa";
 import {
   useGetProductByIdQuery,
   useUpdateProductPriceMutation,
-} from '../slices/productApiSlice'; // Adjust path as needed
+} from "../slices/productApiSlice"; // Adjust path as needed
 
 const ProductEditScreen = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const { data: product, isLoading, isError, error } = useGetProductByIdQuery(id);
-  const [updateProductPrice, { isLoading: isUpdating }] = useUpdateProductPriceMutation();
+  const {
+    data: product,
+    isLoading,
+    isError,
+    error,
+     refetch, 
+  } = useGetProductByIdQuery(id);
+  const [updateProductPrice, { isLoading: isUpdating }] =
+    useUpdateProductPriceMutation();
 
-  const [price, setPrice] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
-  const [formError, setFormError] = useState('');
+  const [price, setPrice] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [formError, setFormError] = useState("");
 
   useEffect(() => {
     if (product) {
@@ -34,24 +41,43 @@ const ProductEditScreen = () => {
     }
   }, [product]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setFormError('');
-    setSuccessMessage('');
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setFormError("");
+  //   setSuccessMessage("");
 
-    if (price === '' || isNaN(price) || Number(price) < 0) {
-      setFormError('Please enter a valid non-negative price.');
-      return;
-    }
+  //   if (price === "" || isNaN(price) || Number(price) < 0) {
+  //     setFormError("Please enter a valid non-negative price.");
+  //     return;
+  //   }
 
-    try {
-      await updateProductPrice({ id, price: Number(price) }).unwrap();
-      setSuccessMessage('Product price updated successfully!');
-      setTimeout(() => navigate('/productList'), 1500); // Redirect after short delay
-    } catch (err) {
-      setFormError(err?.data?.message || 'Failed to update product.');
-    }
-  };
+  //   try {
+  //     await updateProductPrice({ id, price: Number(price) }).unwrap();
+  //     setSuccessMessage("Product price updated successfully!");
+  //     setTimeout(() => navigate("/productList"), 1500); // Redirect after short delay
+  //   } catch (err) {
+  //     setFormError(err?.data?.message || "Failed to update product.");
+  //   }
+  // };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setFormError('');
+  setSuccessMessage('');
+
+  if (price === '' || isNaN(price) || Number(price) < 0) {
+    setFormError('Please enter a valid non-negative price.');
+    return;
+  }
+
+  try {
+    await updateProductPrice({ id, price: Number(price) }).unwrap();
+    await refetch(); // 🔁 Force fresh data from backend
+    setSuccessMessage('Product price updated successfully!');
+    setTimeout(() => navigate('/productList'), 1500);
+  } catch (err) {
+    setFormError(err?.data?.message || 'Failed to update product.');
+  }
+};
 
   return (
     <Container className="my-5">
@@ -63,7 +89,7 @@ const ProductEditScreen = () => {
                 <Button
                   variant="outline-primary"
                   className="me-3"
-                  onClick={() => navigate('/productList')}
+                  onClick={() => navigate("/productList")}
                 >
                   <FaArrowLeft className="me-1" /> Back
                 </Button>
@@ -76,7 +102,7 @@ const ProductEditScreen = () => {
                 </div>
               ) : isError ? (
                 <Alert variant="danger">
-                  {error?.data?.message || 'Failed to load product.'}
+                  {error?.data?.message || "Failed to load product."}
                 </Alert>
               ) : (
                 <Form onSubmit={handleSubmit}>
@@ -102,6 +128,7 @@ const ProductEditScreen = () => {
                       <InputGroup.Text>₹</InputGroup.Text>
                       <Form.Control
                         type="number"
+                        step="any"
                         value={price}
                         onChange={(e) => setPrice(e.target.value)}
                         className="border-warning"
@@ -111,16 +138,23 @@ const ProductEditScreen = () => {
                   </Form.Group>
 
                   {formError && <Alert variant="danger">{formError}</Alert>}
-                  {successMessage && <Alert variant="success">{successMessage}</Alert>}
+                  {successMessage && (
+                    <Alert variant="success">{successMessage}</Alert>
+                  )}
 
                   <div className="d-grid mt-3">
-                    <Button type="submit" variant="primary" size="lg" disabled={isUpdating}>
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      size="lg"
+                      disabled={isUpdating}
+                    >
                       {isUpdating ? (
                         <>
                           <Spinner animation="border" size="sm" /> Updating...
                         </>
                       ) : (
-                        'Update Price'
+                        "Update Price"
                       )}
                     </Button>
                   </div>

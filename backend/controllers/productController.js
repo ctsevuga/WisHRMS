@@ -72,6 +72,32 @@ const updateProductPrice = async (req, res) => {
     return res.status(500).json({ error: 'Server error.' });
   }
 };
+const deleteProduct = asyncHandler(async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Validate ObjectId
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+      res.status(400);
+      throw new Error('Invalid product ID format');
+    }
+
+    const product = await Product.findById(id);
+
+    if (!product) {
+      res.status(404);
+      throw new Error('Product not found');
+    }
+
+    await product.deleteOne();
+
+    res.status(200).json({ message: 'Product deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting product:', error.message);
+    res.status(500).json({ message: 'Server error while deleting product.' });
+  }
+});
+
 
 
 export {
@@ -79,4 +105,5 @@ export {
   createProduct,
   getProductById,
   updateProductPrice,
+  deleteProduct,
 };
