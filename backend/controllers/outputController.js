@@ -6,6 +6,7 @@ import mongoose from "mongoose";
 const createOutput = async (req, res) => {
   try {
     const {
+      details,          // ✅ include optional field
       outputFG,
       totalOutput,
       dross,
@@ -13,15 +14,6 @@ const createOutput = async (req, res) => {
       input: inputId,
       createdBy,
     } = req.body;
-
-    console.log({
-      outputFG,
-      totalOutput,
-      dross,
-      iron,
-      inputId,
-      createdBy
-    });
 
     // Validate required fields
     if (!outputFG || !totalOutput || !inputId || !createdBy) {
@@ -46,8 +38,9 @@ const createOutput = async (req, res) => {
     const conversionCost = typeof inputDoc.conversionCost === 'number' ? inputDoc.conversionCost : 0;
     const costWithConversionPerKg = overallCostPerKg + conversionCost;
 
-    // Create new Output document
+    // Create new Output document (include details only if provided)
     const newOutput = new Output({
+      details: details || "",   // ✅ optional field handled safely
       outputFG,
       totalOutput,
       dross,
@@ -65,14 +58,16 @@ const createOutput = async (req, res) => {
 
     await newOutput.save();
 
-    res
-      .status(201)
-      .json({ message: "Output created successfully.", data: newOutput });
+    res.status(201).json({
+      message: "Output created successfully.",
+      data: newOutput,
+    });
   } catch (error) {
     console.error("Error creating output:", error);
     res.status(500).json({ message: "Internal server error." });
   }
 };
+
 
 
 const getAllOutputs = async (req, res) => {

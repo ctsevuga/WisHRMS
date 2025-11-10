@@ -12,13 +12,13 @@ import {
   Col,
   Spinner,
   Card,
-  InputGroup,
 } from "react-bootstrap";
-import { FaFire, FaWeightHanging, FaRecycle, FaHammer } from "react-icons/fa";
+import { FaFire, FaWeightHanging, FaRecycle, FaHammer, FaInfoCircle } from "react-icons/fa";
 
 const OutputScreen = () => {
   const { userInfo } = useSelector((state) => state.auth);
 
+  const [details, setDetails] = useState(""); // ✅ new state
   const [outputFG, setOutputFG] = useState(0);
   const [totalOutput, setTotalOutput] = useState(0);
   const [dross, setDross] = useState(0);
@@ -38,6 +38,7 @@ const OutputScreen = () => {
 
     try {
       await createOutput({
+        details, // ✅ include optional field
         outputFG,
         totalOutput,
         dross,
@@ -49,6 +50,7 @@ const OutputScreen = () => {
       toast.success("Output created successfully");
 
       // Reset form
+      setDetails(""); // ✅ reset details
       setOutputFG(0);
       setTotalOutput(0);
       setDross(0);
@@ -171,6 +173,21 @@ const OutputScreen = () => {
                 </Form.Group>
               </Col>
             </Row>
+
+            {/* ✅ Details Field */}
+            <Form.Group controlId="details" className="mb-4">
+              <Form.Label>
+                <FaInfoCircle className="me-2 text-info" />
+                Additional Details (optional)
+              </Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                placeholder="Enter any additional information about this output..."
+                value={details}
+                onChange={(e) => setDetails(e.target.value)}
+              />
+            </Form.Group>
 
             <div className="d-grid">
               <Button variant="primary" size="lg" type="submit" disabled={submitting}>
