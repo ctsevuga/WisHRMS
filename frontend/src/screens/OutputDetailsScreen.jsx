@@ -183,10 +183,10 @@ const OutputDetailsScreen = () => {
               </p>
 
               {/* ✅ Newly Added Fields */}
-              <p>
+              {/* <p>
                 <strong>Conversion Cost:</strong> ₹
                 {input?.conversionCost?.toFixed(2) || 0}
-              </p>
+              </p> */}
               <p>
                 <strong>Cost with Conversion/Kg:</strong> ₹
                 {input?.costWithConversionKgPerCost?.toFixed(2) || 0}

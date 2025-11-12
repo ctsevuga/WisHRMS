@@ -75,7 +75,7 @@ const getAllOutputs = async (req, res) => {
     const outputs = await Output.find()
       .populate({
         path: 'input',
-        select: 'heatNo' // Only include the heatNo from Input
+        select: 'heatNo date' // Include heatNo AND date from Input
       })
       .select(
         'details input outputFG totalOutput dross iron other drossInPerc ironInPerc actualRecovery actualCostPerKg overallCostPerKg costWithConversionPerKg createdAt updatedAt'
@@ -94,6 +94,7 @@ const getAllOutputs = async (req, res) => {
     });
   }
 };
+
 
 
 

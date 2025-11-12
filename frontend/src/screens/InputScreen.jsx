@@ -291,53 +291,51 @@ const InputScreen = () => {
           </Accordion.Item>
         </Accordion>
 
-        {/* Cost Inputs */}
-        <Card className="shadow-lg border-0">
-          <Card.Header className="bg-success text-white fw-bold">
-            <FaMoneyBillWave className="me-2" /> Cost Inputs
-          </Card.Header>
-          <Card.Body>
-            <Row className="g-3">
-              {[
-                "workersSalary",
-                "middleManagementSalary",
-                "topManagementSalary",
-                "gasCost",
-                "waterCost",
-                "electricityCost",
-                "foodCost",
-                "fuelForkLiftCost",
-                "maintenanceCost",
-                "conversionCost", // ✅ mandatory
-              ].map((field) => (
-                <Col key={field} xs={12} sm={6} md={4}>
-                  <Form.Group>
-                    <Form.Label className="fw-semibold text-capitalize">
-                      {field.replace(/([A-Z])/g, " $1")}
-                      {field === "conversionCost" && (
-                        <span className="text-danger">*</span>
-                      )}
-                    </Form.Label>
-                    <Form.Control
-                      type="number"
-                      min={field === "conversionCost" ? "0.01" : "0"}
-                      step="0.01"
-                      value={input[field]}
-                      onChange={(e) => {
-                        const val = parseFloat(e.target.value);
-                        handleInputChange(
-                          field,
-                          !isNaN(val) && val > 0 ? val : 0
-                        );
-                      }}
-                      required={field === "conversionCost"}
-                    />
-                  </Form.Group>
-                </Col>
-              ))}
-            </Row>
-          </Card.Body>
-        </Card>
+       {/* Cost Inputs */}
+<Card className="shadow-lg border-0">
+  <Card.Header className="bg-success text-white fw-bold">
+    <FaMoneyBillWave className="me-2" /> Cost Inputs
+  </Card.Header>
+  <Card.Body>
+    <Row className="g-3">
+      {[
+        "workersSalary",
+        "middleManagementSalary",
+        "topManagementSalary",
+        "gasCost",
+        "waterCost",
+        "electricityCost",
+        "foodCost",
+        "fuelForkLiftCost",
+        "maintenanceCost",
+        "conversionCost", // ✅ now optional
+      ].map((field) => (
+        <Col key={field} xs={12} sm={6} md={4}>
+          <Form.Group>
+            <Form.Label className="fw-semibold text-capitalize">
+              {field.replace(/([A-Z])/g, " $1")}
+              {/* Remove mandatory star for conversionCost */}
+            </Form.Label>
+            <Form.Control
+              type="number"
+              min="0" // allow 0 for conversionCost
+              step="0.01"
+              value={input[field]}
+              onChange={(e) => {
+                const val = parseFloat(e.target.value);
+                // If field is empty or NaN, default to 0
+                handleInputChange(field, !isNaN(val) && val > 0 ? val : 0);
+              }}
+              // Remove required for conversionCost
+              required={field !== "conversionCost"}
+            />
+          </Form.Group>
+        </Col>
+      ))}
+    </Row>
+  </Card.Body>
+</Card>
+
 
         {/* Submit Button */}
         <div className="text-center mt-4">
