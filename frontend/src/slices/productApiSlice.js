@@ -9,6 +9,13 @@ export const productsApiSlice = apiSlice.injectEndpoints({
       }),
       keepUnusedDataFor: 5,
     }),
+    getInactiveProducts: builder.query({
+  query: () => ({
+    url: `${PRODUCTS_URL}/inactive`,
+  }),
+  keepUnusedDataFor: 5,
+}),
+
     createProduct: builder.mutation({
       query: (data) => ({
         url: `${PRODUCTS_URL}`,
@@ -23,11 +30,11 @@ export const productsApiSlice = apiSlice.injectEndpoints({
   keepUnusedDataFor: 5,
 }),
 
-    updateProductPrice: builder.mutation({
-  query: ({ id, price }) => ({
+updateProductPrice: builder.mutation({
+  query: ({ id, price, isActive }) => ({
     url: `${PRODUCTS_URL}/products/${id}/price`,
     method: "PUT",
-    body: { price },
+    body: { price, isActive }, // ✅ include both fields
   }),
 }),
 deleteProduct: builder.mutation({
@@ -44,5 +51,6 @@ export const { useGetProductsQuery,
   useCreateProductMutation,
   useGetProductByIdQuery, 
   useUpdateProductPriceMutation,
-useDeleteProductMutation,} =
+useDeleteProductMutation,
+useGetInactiveProductsQuery,} =
   productsApiSlice;
