@@ -11,7 +11,7 @@ import {
   Card,
   InputGroup,
 } from "react-bootstrap";
-import { FaTag, FaDollarSign, FaArrowLeft } from "react-icons/fa";
+import { FaTag, FaDollarSign, FaArrowLeft, FaToggleOn, FaToggleOff } from "react-icons/fa";
 import {
   useGetProductByIdQuery,
   useUpdateProductPriceMutation,
@@ -26,58 +26,60 @@ const ProductEditScreen = () => {
     isLoading,
     isError,
     error,
-     refetch, 
+    refetch,
   } = useGetProductByIdQuery(id);
+
   const [updateProductPrice, { isLoading: isUpdating }] =
     useUpdateProductPriceMutation();
 
   const [price, setPrice] = useState("");
+  const [isActive, setIsActive] = useState(true);
   const [successMessage, setSuccessMessage] = useState("");
   const [formError, setFormError] = useState("");
 
   useEffect(() => {
     if (product) {
-      setPrice(product.price ?? product.Price); // Handle capital or lowercase
+      setPrice(product.price ?? product.Price);
+      setIsActive(product.isActive);
     }
   }, [product]);
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   setFormError("");
-  //   setSuccessMessage("");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setFormError("");
+    setSuccessMessage("");
 
-  //   if (price === "" || isNaN(price) || Number(price) < 0) {
-  //     setFormError("Please enter a valid non-negative price.");
-  //     return;
-  //   }
+    if (price === "" || isNaN(price) || Number(price) < 0) {
+      setFormError("Please enter a valid non-negative price.");
+      return;
+    }
 
-  //   try {
-  //     await updateProductPrice({ id, price: Number(price) }).unwrap();
-  //     setSuccessMessage("Product price updated successfully!");
-  //     setTimeout(() => navigate("/productList"), 1500); // Redirect after short delay
-  //   } catch (err) {
-  //     setFormError(err?.data?.message || "Failed to update product.");
-  //   }
-  // };
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setFormError('');
-  setSuccessMessage('');
+    try {
+      await updateProductPrice({ id, price: Number(price), isActive }).unwrap();
+      await refetch();
+      setSuccessMessage("Product updated successfully!");
+      setTimeout(() => navigate("/productList"), 1500);
+    } catch (err) {
+      setFormError(err?.data?.message || "Failed to update product.");
+    }
+  };
 
-  if (price === '' || isNaN(price) || Number(price) < 0) {
-    setFormError('Please enter a valid non-negative price.');
-    return;
-  }
+  // Toggle the active status and immediately update in DB
+  const handleToggleActive = async () => {
+    const newStatus = !isActive;
+    setIsActive(newStatus);
 
-  try {
-    await updateProductPrice({ id, price: Number(price) }).unwrap();
-    await refetch(); // 🔁 Force fresh data from backend
-    setSuccessMessage('Product price updated successfully!');
-    setTimeout(() => navigate('/productList'), 1500);
-  } catch (err) {
-    setFormError(err?.data?.message || 'Failed to update product.');
-  }
-};
+    try {
+      await updateProductPrice({ id, price: Number(price), isActive: newStatus }).unwrap();
+      await refetch();
+      setSuccessMessage(
+        `Product has been ${newStatus ? "activated" : "deactivated"}.`
+      );
+    } catch (err) {
+      setFormError(err?.data?.message || "Failed to update active status.");
+      setIsActive(!newStatus); // revert UI change if error
+    }
+  };
 
   return (
     <Container className="my-5">
@@ -93,7 +95,7 @@ const handleSubmit = async (e) => {
                 >
                   <FaArrowLeft className="me-1" /> Back
                 </Button>
-                <h3 className="mb-0 text-primary">Update Product Price</h3>
+                <h3 className="mb-0 text-primary">Edit Product</h3>
               </div>
 
               {isLoading ? (
@@ -137,6 +139,27 @@ const handleSubmit = async (e) => {
                     </InputGroup>
                   </Form.Group>
 
+                  <Form.Group className="mb-4 d-flex align-items-center justify-content-between">
+                    <Form.Label className="mb-0">
+                      {isActive ? (
+                        <FaToggleOn
+                          className="text-success me-2"
+                          size={24}
+                        />
+                      ) : (
+                        <FaToggleOff className="text-danger me-2" size={24} />
+                      )}
+                      Active Status
+                    </Form.Label>
+                    <Button
+                      variant={isActive ? "success" : "secondary"}
+                      onClick={handleToggleActive}
+                      disabled={isUpdating}
+                    >
+                      {isActive ? "Active" : "Inactive"}
+                    </Button>
+                  </Form.Group>
+
                   {formError && <Alert variant="danger">{formError}</Alert>}
                   {successMessage && (
                     <Alert variant="success">{successMessage}</Alert>
@@ -154,7 +177,7 @@ const handleSubmit = async (e) => {
                           <Spinner animation="border" size="sm" /> Updating...
                         </>
                       ) : (
-                        "Update Price"
+                        "Update Product"
                       )}
                     </Button>
                   </div>

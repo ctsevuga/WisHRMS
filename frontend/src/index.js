@@ -24,6 +24,7 @@ import OutputScreen from "./screens/OutputScreen";
 import OutputListScreen from "./screens/OutputListScreen";
 import OutputDetailsScreen from "./screens/OutputDetailsScreen";
 import ProductListScreen from "./screens/ProductListScreen";
+import InactiveProductListScreen from "./screens/InactiveProductListScreen";
 import ProductScreen from "./screens/ProductScreen";
 import ProductEditScreen from "./screens/ProductEditScreen";
 
@@ -44,6 +45,7 @@ const router = createBrowserRouter(
       <Route path="" element={<PrivateRoute />}>
       <Route path="/product" element={<ProductScreen />} />
       <Route path="/productList" element={<ProductListScreen />} />
+      <Route path="/inactiveProductList" element={<InactiveProductListScreen />} />
       <Route path='/product/:id/edit' element={<ProductEditScreen />} />
       <Route path="/input" element={<InputScreen />} />
       <Route path="/inputList" element={<InputListScreen />} />

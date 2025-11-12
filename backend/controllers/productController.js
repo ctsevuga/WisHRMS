@@ -3,13 +3,25 @@ import Product from '../models/productModel.js';
 
 const getProducts = asyncHandler(async (req, res) => {
   try {
-    const products = await Product.find({});
-      
+    // Fetch only active products
+    const products = await Product.find({ isActive: true });
 
     res.status(200).json(products);
   } catch (error) {
-    console.error('Error fetching ledgers:', error.message);
-    res.status(500).json({ message: 'Server error while fetching ledgers' });
+    console.error("Error fetching products:", error.message);
+    res.status(500).json({ message: "Server error while fetching products" });
+  }
+});
+
+const getInactiveProducts = asyncHandler(async (req, res) => {
+  try {
+    const products = await Product.find({ isActive: false });
+    res.status(200).json(products);
+  } catch (error) {
+    console.error("Error fetching inactive products:", error.message);
+    res
+      .status(500)
+      .json({ message: "Server error while fetching inactive products" });
   }
 });
 
@@ -47,31 +59,49 @@ const getProductById = asyncHandler(async (req, res) => {
     throw new Error('Product not found');
   }
 });
+
+
 const updateProductPrice = async (req, res) => {
   try {
     const { id } = req.params;
-    let { price } = req.body;
+    let { price, isActive } = req.body;
 
+    // Validate and sanitize price
     price = Number(price);
     if (isNaN(price) || price < 0) {
-      return res.status(400).json({ error: 'Valid price is required.' });
+      return res.status(400).json({ error: "Valid price is required." });
     }
 
+    // Validate isActive (if provided)
+    if (isActive !== undefined && typeof isActive !== "boolean") {
+      return res
+        .status(400)
+        .json({ error: "`isActive` must be a boolean (true or false)." });
+    }
+
+    // Find product
     const product = await Product.findById(id);
-    
     if (!product) {
-      return res.status(404).json({ error: 'Product not found.' });
+      return res.status(404).json({ error: "Product not found." });
     }
 
+    // Update fields
     product.Price = price;
+    if (isActive !== undefined) {
+      product.isActive = isActive;
+    }
+
     await product.save();
-    
+
     return res.status(200).json(product);
   } catch (error) {
-    console.error('Error updating product price:', error);
-    return res.status(500).json({ error: 'Server error.' });
+    console.error("Error updating product:", error);
+    return res.status(500).json({ error: "Server error." });
   }
 };
+
+
+
 const deleteProduct = asyncHandler(async (req, res) => {
   try {
     const { id } = req.params;
@@ -102,6 +132,7 @@ const deleteProduct = asyncHandler(async (req, res) => {
 
 export {
   getProducts,
+  getInactiveProducts,
   createProduct,
   getProductById,
   updateProductPrice,
