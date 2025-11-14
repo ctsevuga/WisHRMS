@@ -34,7 +34,7 @@ const RegisterScreen = () => {
         const res = await register({ name, phone, password }).unwrap();
         dispatch(setCredentials({ ...res }));
         toast.success('Registration successful!');
-        navigate("/employee");
+        navigate("/");
       } catch (err) {
         toast.error(err?.data?.message || err.error);
       }

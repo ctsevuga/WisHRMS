@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Form, Button, Alert, Spinner, Container, Row, Col, Card, InputGroup } from 'react-bootstrap';
 import { FaBox, FaMoneyBillWave, FaPlusCircle } from 'react-icons/fa';
+import {  useNavigate } from 'react-router-dom';
 import { useCreateProductMutation } from '../slices/productApiSlice'; // Adjust path as needed
 
 const ProductScreen = () => {
+  const navigate = useNavigate();
   const [product, setProduct] = useState('');
   const [price, setPrice] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -32,6 +34,7 @@ const ProductScreen = () => {
       setSuccessMessage(`Product "${response.Product || response.product}" created successfully!`);
       setProduct('');
       setPrice('');
+      navigate("/productList");
     } catch (err) {
       setErrorMessage(err?.data?.message || 'Failed to create product.');
     }
